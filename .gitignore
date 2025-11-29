@@ -1,0 +1,74 @@
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Environnements Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.python-version
+.env
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Tests / couverture
+.pytest_cache/
+.cache/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.gdb_history
+
+# Docs générées
+docs/_build/
+doc/build/
+site/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# C / C++ / extensions
+/build/
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.dylib
+*.out
+*.manifest
+*.spec
+
+# Journaux & sauvegardes
+*.log
+*.bak
