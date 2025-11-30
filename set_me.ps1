@@ -70,7 +70,7 @@ Invoke-CmdChecked "conda" @("install","-n",$envName,"-c","conda-forge","streamli
 Invoke-CmdChecked "python" @("-m","pip","install","--force-reinstall","certifi")
 
 # Reinstall pip dependencies listed in environment.yml (pip section)
-$pipPkgs = @("gymnasium","tensorboard","pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly")
+$pipPkgs = @("gymnasium","tensorboard","pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly","openai","telethon")
 $pipBase = @("-m","pip","install","--upgrade","--no-build-isolation","--progress-bar","off")
 foreach ($pkg in $pipPkgs) {
     Invoke-CmdChecked "python" ($pipBase + $pkg) -AllowedExitCodes @(0,120)
@@ -131,6 +131,7 @@ if ($gpuAvailable -and $isLinuxOrWSL) {
 
 # Core Python libs (top-ups)
 Invoke-CmdChecked "pip" @("install","--upgrade","gymnasium","tensorboard","pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly")
+Invoke-CmdChecked "pip" @("install","--upgrade","openai","telethon")
 
 function Install-Editable {
     param(
@@ -180,7 +181,7 @@ Install-Editable "./Calibrating-Rough-Volatility-Models-with-Deep-Learning"
 $hasMsvc = Get-Command cl -ErrorAction SilentlyContinue
 $lobBuilt = $false
 if (-not $hasMsvc) {
-    Write-Warning "No MSVC compiler (cl) detected. Skipping limit-order-book build. Ouvre une Developer PowerShell for VS 2022 avec les Build Tools installés puis relance setup.ps1."
+    Write-Warning "No MSVC compiler (cl) detected. Skipping limit-order-book build. Ouvre une Developer PowerShell for VS 2022 avec les Build Tools installés puis relance set_me.ps1."
 } else {
     Require-Command cmake
     Require-Command ninja
@@ -261,7 +262,7 @@ if (-not $hasMsvc) {
             }
         } catch {
             $lobBuilt = $false
-            Write-Warning "limit-order-book build failed (CMake/Ninja). Utilise une Developer PowerShell for VS 2022 (MSVC) puis relance setup.ps1. Détail: $($_.Exception.Message)"
+            Write-Warning "limit-order-book build failed (CMake/Ninja). Utilise une Developer PowerShell for VS 2022 (MSVC) puis relance set_me.ps1. Détail: $($_.Exception.Message)"
         } finally {
             Pop-Location
         }

@@ -1,6 +1,6 @@
 # POLYO Setup Guide (Windows)
 
-Ce document résume l’installation complète pour un clone frais du repo, y compris CUDA, Build Tools, conda, et la résolution des pièges habituels. Objectif : pouvoir lancer `setup.ps1` puis `run_me.ps1` sans surprises.
+Ce document résume l’installation complète pour un clone frais du repo, y compris CUDA, Build Tools, conda, et la résolution des pièges habituels. Objectif : pouvoir lancer `set_me.ps1` puis `run_me.ps1` sans surprises.
 
 ## Prérequis système
 - Windows 10/11 64‑bit.
@@ -26,7 +26,7 @@ Certaines dépendances (limit-order-book) nécessitent un compilateur C++.
 ### Builder limit-order-book avec MSVC
 - Ouvre une **Developer PowerShell for VS 2022** (menu Démarrer) afin de charger `cl`, CMake et Ninja.
 - Vérifie `cl` dans le terminal.
-- Dans `D:\PythonDProjects\POLYO`, relance `pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1` pour builder `limit-order-book`.
+- Dans `D:\PythonDProjects\POLYO`, relance `pwsh -NoProfile -ExecutionPolicy Bypass -File .\set_me.ps1` pour builder `limit-order-book`.
 - Pas besoin de rendre ça permanent : relance simplement une Developer PowerShell quand tu veux reconstruire `limit-order-book`. Si tu restes en PowerShell standard, appelle `VsDevCmd.bat` avant le setup.
 
 En résumé pour (re)builder `limit-order-book` :
@@ -35,10 +35,10 @@ En résumé pour (re)builder `limit-order-book` :
 cl   # vérifier que MSVC répond
 cd D:\PythonDProjects\POLYO
 Remove-Item limit-order-book\cpp\build -Recurse -Force -ErrorAction SilentlyContinue  # optionnel
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\set_me.ps1
 ```
 
-Si tu utilises le terminal intégré VS Code, crée/choisis un profil “Developer PowerShell” pour que `cl` soit chargé avant de lancer `setup.ps1`.
+Si tu utilises le terminal intégré VS Code, crée/choisis un profil “Developer PowerShell” pour que `cl` soit chargé avant de lancer `set_me.ps1`.
 
 ### VS Code : choisir le profil “Developer PowerShell”
 1. `Ctrl+Shift+P` → “Terminal: Select Default Profile”.
@@ -90,9 +90,9 @@ cd POLYO
 ## Étape 5 — Provisioning automatique
 Lancer le setup complet (installe env `polyo-gpu`, PyTorch CUDA, JAX, streamlit, dépendances locales, etc.) :
 ```pwsh
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\set_me.ps1
 ```
-Ce que fait `setup.ps1` :
+Ce que fait `set_me.ps1` :
 - Crée/actualise l’env conda `polyo-gpu` avec les packages de base + pybind11.
 - Installe streamlit via conda-forge.
 - Répare certifi si cassé.
@@ -107,16 +107,16 @@ pwsh -ExecutionPolicy Bypass -File .\run_me.ps1
 ```
 Options :
 - `-ApiKey "<GMGN_API_KEY>"` (facultatif). Sans clef → mode TEST (dummy data).
-- `-EnvName "polyo-gpu"` (par défaut). Le script crée l’env via `setup.ps1` si absent, vérifie streamlit, puis lance `python -m streamlit run app_gmgn_polyo.py` via conda run.
+- `-EnvName "polyo-gpu"` (par défaut). Le script crée l’env via `set_me.ps1` si absent, vérifie streamlit, puis lance `python -m streamlit run app_gmgn_polyo.py` via conda run.
 
 ## Pièges fréquents & solutions
 - **`conda` introuvable** : réouvre un terminal après `conda init powershell`, ou lance depuis “Anaconda Prompt (PowerShell)”. Assure-toi que Miniconda est sur le PATH.
 - **`streamlit` introuvable** : `run_me.ps1` l’installera si besoin. Sinon : `conda install -n polyo-gpu -c conda-forge streamlit`.
-- **Certifi METADATA manquante** (erreur pip) : `python -m pip install --force-reinstall certifi` (déjà fait dans `setup.ps1`).
+- **Certifi METADATA manquante** (erreur pip) : `python -m pip install --force-reinstall certifi` (déjà fait dans `set_me.ps1`).
 - **Compilateur C++ manquant** : installe Build Tools + workload C++; ou ignore si tu n’as pas besoin de limit-order-book.
 - **CUDA non détectée** : vérifier `nvidia-smi`, drivers, version CUDA. Sinon, l’app tourne en CPU.
-- **Ray/gym versions** : le setup réinstalle les versions compatibles ; en cas de conflit, nettoyer l’env (`conda env remove -n polyo-gpu`) puis relancer `setup.ps1`.
-- **Build limit-order-book** : lance `setup.ps1` depuis une **Developer PowerShell for VS 2022** (profil amd64). Le script force l’usage de `Hostx64\\x64\\cl.exe`, du Windows SDK x64 détecté, préfixe `LIB` avec les libs x64 SDK/MSVC, et fixe les destinations d’install CMake (`CMAKE_INSTALL_LIBDIR/lib`, `CMAKE_LIBRARY_OUTPUT_DIRECTORY/lib`) pour éviter l’erreur “install TARGETS given no LIBRARY DESTINATION”. Il continue même si la build est sautée.
+- **Ray/gym versions** : le setup réinstalle les versions compatibles ; en cas de conflit, nettoyer l’env (`conda env remove -n polyo-gpu`) puis relancer `set_me.ps1`.
+- **Build limit-order-book** : lance `set_me.ps1` depuis une **Developer PowerShell for VS 2022** (profil amd64). Le script force l’usage de `Hostx64\\x64\\cl.exe`, du Windows SDK x64 détecté, préfixe `LIB` avec les libs x64 SDK/MSVC, et fixe les destinations d’install CMake (`CMAKE_INSTALL_LIBDIR/lib`, `CMAKE_LIBRARY_OUTPUT_DIRECTORY/lib`) pour éviter l’erreur “install TARGETS given no LIBRARY DESTINATION”. Il continue même si la build est sautée.
 - **hmmlearn** : installé via wheel (`pip install hmmlearn`) pour éviter les erreurs de linkage MSVC. Si tu veux builder en editable, ouvre une Developer PowerShell x64 et lance manuellement `pip install -e . --no-build-isolation` dans `hmmlearn/`.
 - **Windows 10 SDK** : installe le SDK Windows 10 via Visual Studio Build Tools (onglet “Composants individuels” → “Kit de développement logiciel (SDK) Windows 10”). Sans lui, la build MSVC x64 du limit-order-book peut échouer faute de libs/headers.
 
@@ -124,7 +124,7 @@ Options :
 - Supprimer l’env et repartir propre :
   ```pwsh
   conda env remove -n polyo-gpu
-  pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1
+  pwsh -NoProfile -ExecutionPolicy Bypass -File .\set_me.ps1
   ```
 - Vérifier GPU : `nvidia-smi`
 - Lancer l’app directement si l’env est actif : `python -m streamlit run app_gmgn_polyo.py`
