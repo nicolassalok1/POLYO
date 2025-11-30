@@ -72,12 +72,14 @@ Invoke-CmdChecked "python" @("-m","pip","install","--force-reinstall","certifi")
 
 # Reinstall pip dependencies listed in environment.yml (pip section)
 $pipPkgs = @(
+    # Core pins to align TF/JAX/pyarrow
     "numpy==1.26.4",
     "typing-extensions==4.15.0",
     "tensorboard==2.18.0",
     "tensorflow==2.18.0",
     "pyarrow==14.0.2",
-    "gymnasium",
+    # RL / deps
+    "gymnasium==1.1.1",  # matches ray[rllib] constraint
     "pyro-ppl",
     "stable-baselines3",
     "ray[rllib]",
