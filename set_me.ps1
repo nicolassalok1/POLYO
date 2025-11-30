@@ -139,12 +139,21 @@ Ensure-Torch -UseGpu:$gpuAvailable
 
 # Install JAX
 $isLinuxOrWSL = -not $IsWindows
+$jaxVersion = "0.4.28"       # aligned with TF 2.18 ml-dtypes<0.5 constraint
+$mlDtypesVersion = "0.4.0"
 if ($gpuAvailable -and $isLinuxOrWSL) {
-    Write-Host "Installing JAX with CUDA 12 support..."
-    Invoke-CmdChecked "pip" @("install","--upgrade","jax[cuda12]","-f","https://storage.googleapis.com/jax-releases/jax_cuda_releases.html")
+    Write-Host "Installing JAX $jaxVersion with CUDA 12 support (pins ml-dtypes to $mlDtypesVersion for TF compatibility)..."
+    Invoke-CmdChecked "pip" @(
+        "install","--upgrade","--force-reinstall",
+        "jax[cuda12_pip]==$jaxVersion","ml-dtypes==$mlDtypesVersion",
+        "-f","https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"
+    )
 } else {
-    Write-Host "Installing JAX CPU build..."
-    Invoke-CmdChecked "pip" @("install","--upgrade","jax[cpu]")
+    Write-Host "Installing JAX $jaxVersion CPU build (pins ml-dtypes to $mlDtypesVersion for TF compatibility)..."
+    Invoke-CmdChecked "pip" @(
+        "install","--upgrade","--force-reinstall",
+        "jax==$jaxVersion","jaxlib==$jaxVersion","ml-dtypes==$mlDtypesVersion"
+    )
 }
 
 # Core Python libs (top-ups)

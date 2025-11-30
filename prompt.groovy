@@ -1,78 +1,29 @@
-branch gmgn :
-PROMPT CODEX — Sélection du meilleur repo Telegram pour mon pipeline NLP
+You are Codex 5.1 Max.
 
-You are Codex with full internet search and repository-analysis capability.
+Task: Integrate a Telegram scraper, sentiment analysis, and reinforcement learning module into my existing Python application (POLYO).
 
-Your task is to select the single best GitHub repository to integrate Telegram message ingestion into my project.
+Telegram Scraper:
 
-My constraints (strict):
+Use a GitHub repo like unnohwn/telegram-scraper to fetch messages from specific Telegram channels.
 
-Fiabilité:
+The scraper outputs raw text messages.
 
-Actively maintained (2022+).
+Sentiment Analysis + Reinforcement Learning:
 
-Clean codebase.
+Use the OpenAI API to analyze the sentiment of each message to determine if it recommends a token.
 
-Uses Telethon or Pyrogram reliably.
+Implement a reinforcement learning component (also using the OpenAI API) that learns to weigh the reliability of different signal sources or message types, not individual tokens.
 
-Supports large channels.
+The module should produce trading signals (tokens to trade) based on the learned patterns.
 
-Simplicité d’exécution et d’inclusion:
+Pipeline Integration:
 
-Should run with python3 <script.py>
+The output of this module (the trading signals) will be used by the rest of the application.
 
-Minimal dependencies.
+The main application will incorporate these signals into its existing pipeline to generate final trading decisions (e.g., calculating the size of calls, puts, and other trading signals).
 
-Easy authentication (API_ID, API_HASH).
+Final Goal:
 
-Simple architecture → easy to drop into my repo POLYO.
+The application will use the RL feedback loop to refine the weighting of different signals over time, improving the selection of tokens.
 
-Compatibilité de l’output avec mon module NLP:
-
-Must export messages in clean structured format (JSON, CSV, dict).
-
-Each record must contain at least:
-
-text
-
-timestamp
-
-sender
-
-channel
-
-Bonus if includes media links or message IDs.
-
-Codex — Required Output
-
-Choose the best single GitHub repo.
-
-Justify the choice STRICTLY using my 3 constraints.
-
-Provide:
-
-Repo URL
-
-Summary of what it does
-
-Steps to integrate it into my POLYO project
-
-A minimal working Python example to fetch last 100 messages and return a clean JSON list ready for NLP ingestion.
-
-Critical rule
-
-Ignore repos that are:
-
-Deprecated
-
-Not maintained
-
-Too heavy
-
-Over-engineered
-
-Bot-first only (I need user-client access to channels)
-
-Final Deliverable
-
-A concise technical answer selecting the best repo and integration path for my NLP pipeline.
+Ultimately, the rest of the application will generate final trading actions and PnL, feeding that back into the RL model to continuously improve.
