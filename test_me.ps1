@@ -7,6 +7,7 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 Set-Location $scriptDir
 
 $tests = @(
+    "LSTM-Crypto-Price-Prediction\test_lstm_module.py",
     "tests\test_polyo_pipeline.py",
     "tests\use_case_simple.py",
     "tests\use_case_stress_tests.py",

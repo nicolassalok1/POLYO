@@ -54,6 +54,7 @@ if ($existing) {
 conda activate $envName
 
 $extraPaths = @(
+    $scriptDir,
     (Join-Path $scriptDir "rough_bergomi"),
     (Join-Path $scriptDir "limit-order-book\python")
 ) -join ";"
@@ -70,7 +71,22 @@ Invoke-CmdChecked "conda" @("install","-n",$envName,"-c","conda-forge","streamli
 Invoke-CmdChecked "python" @("-m","pip","install","--force-reinstall","certifi")
 
 # Reinstall pip dependencies listed in environment.yml (pip section)
-$pipPkgs = @("gymnasium","tensorboard","pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly","openai","telethon")
+$pipPkgs = @(
+    "numpy==1.26.4",
+    "typing-extensions==4.15.0",
+    "tensorboard==2.18.0",
+    "tensorflow==2.18.0",
+    "pyarrow==14.0.2",
+    "gymnasium",
+    "pyro-ppl",
+    "stable-baselines3",
+    "ray[rllib]",
+    "requests",
+    "tqdm",
+    "plotly",
+    "openai",
+    "telethon"
+)
 $pipBase = @("-m","pip","install","--upgrade","--no-build-isolation","--progress-bar","off")
 foreach ($pkg in $pipPkgs) {
     Invoke-CmdChecked "python" ($pipBase + $pkg) -AllowedExitCodes @(0,120)
@@ -121,17 +137,16 @@ Ensure-Torch -UseGpu:$gpuAvailable
 
 # Install JAX
 $isLinuxOrWSL = -not $IsWindows
-if ($gpuAvailable -and $isLinuxOrWSL) {
-    Write-Host "Installing JAX with CUDA 12 support..."
-    Invoke-CmdChecked "pip" @("install","--upgrade","jax[cuda12]","-f","https://storage.googleapis.com/jax-releases/jax_cuda_releases.html")
-} else {
-    Write-Host "Installing JAX CPU build..."
-    Invoke-CmdChecked "pip" @("install","--upgrade","jax[cpu]")
-}
+Write-Host "Installing JAX CPU build (pinned for TensorFlow compatibility)..."
+Invoke-CmdChecked "pip" @("install","--upgrade","--progress-bar","off","jax==0.4.33","jaxlib==0.4.33","numpy==1.26.4") -AllowedExitCodes @(0,120)
 
 # Core Python libs (top-ups)
-Invoke-CmdChecked "pip" @("install","--upgrade","gymnasium","tensorboard","pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly")
-Invoke-CmdChecked "pip" @("install","--upgrade","openai","telethon")
+Invoke-CmdChecked "pip" @(
+    "install","--upgrade","--progress-bar","off",
+    "numpy==1.26.4","pyarrow==14.0.2","gymnasium","tensorboard==2.18.0",
+    "pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly",
+    "openai","telethon"
+) -AllowedExitCodes @(0,120)
 
 function Install-Editable {
     param(
