@@ -148,17 +148,12 @@ if ($gpuAvailable -and $isLinuxOrWSL) {
 }
 
 # Core Python libs (top-ups)
-Invoke-CmdChecked "pip" @("install","--upgrade","gymnasium","tensorboard","pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly")
-Invoke-CmdChecked "pip" @("install","--upgrade","openai","telethon")
-
-# Core Python libs (top-ups)
 Invoke-CmdChecked "pip" @(
     "install","--upgrade","--progress-bar","off",
     "numpy==1.26.4","pyarrow==14.0.2","gymnasium","tensorboard==2.18.0",
     "pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly",
     "openai","telethon"
 ) -AllowedExitCodes @(0,120)
-
 function Install-Editable {
     param(
         [string]$Path,
