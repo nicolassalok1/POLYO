@@ -170,37 +170,49 @@ if (-not $compilerAvailable) {
     Require-Command cmake
     Require-Command ninja
     Push-Location (Join-Path $scriptDir "limit-order-book/cpp")
-    New-Item -ItemType Directory -Force -Path "build" | Out-Null
-    Push-Location "build"
-    $cmakeArgs = @("-G","Ninja","-DCMAKE_BUILD_TYPE=Release","..")
-    if ($hasGcc) {
-        $gccPath = (Get-Command gcc).Source
-        $gxxPath = (Get-Command g++).Source
-        $ninjaPath = (Get-Command ninja).Source
-        $cmakeArgs = @(
-            "-G","Ninja",
-            "-DCMAKE_BUILD_TYPE=Release",
-            "-DCMAKE_C_COMPILER=$gccPath",
-            "-DCMAKE_CXX_COMPILER=$gxxPath",
-            "-DCMAKE_MAKE_PROGRAM=$ninjaPath",
-            ".."
-        )
-    }
-    Invoke-CmdChecked "cmake" $cmakeArgs
-    Invoke-CmdChecked "ninja"
-    Pop-Location
-    Pop-Location
+    try {
+        New-Item -ItemType Directory -Force -Path "build" | Out-Null
+        Push-Location "build"
+        try {
+            $cmakeArgs = @("-G","Ninja","-DCMAKE_BUILD_TYPE=Release","..")
+            if ($hasGcc) {
+                $gccPath = (Get-Command gcc).Source
+                $gxxPath = (Get-Command g++).Source
+                $ninjaPath = (Get-Command ninja).Source
+                $cmakeArgs = @(
+                    "-G","Ninja",
+                    "-DCMAKE_BUILD_TYPE=Release",
+                    "-DCMAKE_C_COMPILER=$gccPath",
+                    "-DCMAKE_CXX_COMPILER=$gxxPath",
+                    "-DCMAKE_MAKE_PROGRAM=$ninjaPath",
+                    ".."
+                )
+            }
+            Invoke-CmdChecked "cmake" $cmakeArgs
+            Invoke-CmdChecked "ninja"
 
-    $lobPython = Join-Path $scriptDir "limit-order-book/python"
-    $lobSetup = Join-Path $lobPython "setup.py"
-    $lobPyproject = Join-Path $lobPython "pyproject.toml"
-    if ((Test-Path $lobSetup) -or (Test-Path $lobPyproject)) {
-        Push-Location $lobPython
-        Invoke-CmdChecked "pip" @("install",".")
+            $lobPython = Join-Path $scriptDir "limit-order-book/python"
+            $lobSetup = Join-Path $lobPython "setup.py"
+            $lobPyproject = Join-Path $lobPython "pyproject.toml"
+            if ((Test-Path $lobSetup) -or (Test-Path $lobPyproject)) {
+                Push-Location $lobPython
+                try {
+                    Invoke-CmdChecked "pip" @("install",".")
+                    $lobBuilt = $true
+                } finally {
+                    Pop-Location
+                }
+            } else {
+                Write-Warning "limit-order-book/python has no setup.py/pyproject.toml; skipping pip install."
+            }
+        } catch {
+            $lobBuilt = $false
+            Write-Warning "limit-order-book build failed (CMake/Ninja). If vous utilisez MSYS2, lancez setup depuis une console MINGW64 ou installez Visual Studio Build Tools. Détail: $($_.Exception.Message)"
+        } finally {
+            Pop-Location
+        }
+    } finally {
         Pop-Location
-        $lobBuilt = $true
-    } else {
-        Write-Warning "limit-order-book/python has no setup.py/pyproject.toml; skipping pip install."
     }
 }
 

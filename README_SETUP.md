@@ -102,6 +102,7 @@ Options :
 - **Compilateur C++ manquant** : installe Build Tools + workload C++; ou ignore si tu n’as pas besoin de limit-order-book.
 - **CUDA non détectée** : vérifier `nvidia-smi`, drivers, version CUDA. Sinon, l’app tourne en CPU.
 - **Ray/gym versions** : le setup réinstalle les versions compatibles ; en cas de conflit, nettoyer l’env (`conda env remove -n polyo-gpu`) puis relancer `setup.ps1`.
+- **Build limit-order-book qui échoue avec MinGW/g++ sous PowerShell** : essaye de lancer `setup.ps1` depuis une console **MSYS2 MINGW64** (où gcc/ninja sont natifs) ou installe Visual Studio Build Tools (cl.exe) puis relance. Le script continuera même si la build est sautée.
 
 ## Commandes utiles
 - Supprimer l’env et repartir propre :
