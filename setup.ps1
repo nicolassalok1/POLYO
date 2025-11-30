@@ -172,7 +172,21 @@ if (-not $compilerAvailable) {
     Push-Location (Join-Path $scriptDir "limit-order-book/cpp")
     New-Item -ItemType Directory -Force -Path "build" | Out-Null
     Push-Location "build"
-    Invoke-CmdChecked "cmake" @("-G","Ninja","-DCMAKE_BUILD_TYPE=Release","..")
+    $cmakeArgs = @("-G","Ninja","-DCMAKE_BUILD_TYPE=Release","..")
+    if ($hasGcc) {
+        $gccPath = (Get-Command gcc).Source
+        $gxxPath = (Get-Command g++).Source
+        $ninjaPath = (Get-Command ninja).Source
+        $cmakeArgs = @(
+            "-G","Ninja",
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DCMAKE_C_COMPILER=$gccPath",
+            "-DCMAKE_CXX_COMPILER=$gxxPath",
+            "-DCMAKE_MAKE_PROGRAM=$ninjaPath",
+            ".."
+        )
+    }
+    Invoke-CmdChecked "cmake" $cmakeArgs
     Invoke-CmdChecked "ninja"
     Pop-Location
     Pop-Location
