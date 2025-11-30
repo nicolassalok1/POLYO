@@ -1,6 +1,6 @@
 # POLYO Setup Guide (Windows)
 
-Ce document résume l’installation complète pour un clone frais du repo, y compris CUDA, Build Tools, conda, et la résolution des pièges habituels. Objectif : pouvoir lancer `setup.ps1` puis `set_keys_and_run.ps1` sans surprises.
+Ce document résume l’installation complète pour un clone frais du repo, y compris CUDA, Build Tools, conda, et la résolution des pièges habituels. Objectif : pouvoir lancer `setup.ps1` puis `run_me.ps1` sans surprises.
 
 ## Prérequis système
 - Windows 10/11 64‑bit.
@@ -103,7 +103,7 @@ Ce que fait `setup.ps1` :
 
 ## Étape 6 — Lancer l’application Streamlit
 ```pwsh
-pwsh -ExecutionPolicy Bypass -File .\set_keys_and_run.ps1
+pwsh -ExecutionPolicy Bypass -File .\run_me.ps1
 ```
 Options :
 - `-ApiKey "<GMGN_API_KEY>"` (facultatif). Sans clef → mode TEST (dummy data).
@@ -111,7 +111,7 @@ Options :
 
 ## Pièges fréquents & solutions
 - **`conda` introuvable** : réouvre un terminal après `conda init powershell`, ou lance depuis “Anaconda Prompt (PowerShell)”. Assure-toi que Miniconda est sur le PATH.
-- **`streamlit` introuvable** : `set_keys_and_run.ps1` l’installera si besoin. Sinon : `conda install -n polyo-gpu -c conda-forge streamlit`.
+- **`streamlit` introuvable** : `run_me.ps1` l’installera si besoin. Sinon : `conda install -n polyo-gpu -c conda-forge streamlit`.
 - **Certifi METADATA manquante** (erreur pip) : `python -m pip install --force-reinstall certifi` (déjà fait dans `setup.ps1`).
 - **Compilateur C++ manquant** : installe Build Tools + workload C++; ou ignore si tu n’as pas besoin de limit-order-book.
 - **CUDA non détectée** : vérifier `nvidia-smi`, drivers, version CUDA. Sinon, l’app tourne en CPU.
