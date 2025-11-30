@@ -75,8 +75,7 @@ Objectif : ouvrir PowerShell dans le terminal intégré VS Code avec un compilat
   Remplace par `"Windows PowerShell"` si tu préfères la v5 intégrée, ou par un profil "Developer PowerShell" si tu utilises MSVC.
 - Compiler en C++ depuis PowerShell :
   - MSVC (Build Tools) : ouvre une Developer PowerShell for VS 2022 ou exécute `VcVars64.bat`/`Launch-VsDevShell.ps1`, puis `cl /EHsc /std:c++17 main.cpp`.
-  - MinGW (MSYS2) : installe `mingw-w64-ucrt-x86_64-gcc`, ajoute `C:\msys64\ucrt64\bin` au PATH, puis `g++ -std=c++17 -O2 main.cpp -o main.exe`.
-- Contrôle rapide : `cl` doit afficher la version (MSVC) ou `g++ --version` (MinGW). Si la commande est introuvable, relance une Developer PowerShell ou corrige le PATH.
+ - Contrôle rapide : `cl` doit afficher la version (MSVC). Si la commande est introuvable, relance une Developer PowerShell ou corrige le PATH.
 
 ## Étape 3 - Miniconda/Conda
 1. Installe **Miniconda** ou **Anaconda** (choisir "Add conda to PATH" ou initialise le shell via `conda init powershell`).
@@ -99,7 +98,7 @@ Ce que fait `setup.ps1` :
 - Répare certifi si cassé.
 - Réinstalle/upgrade les paquets pip clés (gymnasium, tensorboard, pyro-ppl, stable-baselines3, ray[rllib], requests, tqdm, plotly).
 - Installe en editable : jumpdiff, hmmlearn, pykalman, TradeMaster (et saute ceux sans setup).
-- Tente de builder limit-order-book (si compilateur dispo). Si aucun `cl/gcc/clang`, warning seulement.
+- Tente de builder limit-order-book (si `cl` MSVC est disponible). Sinon, warning seulement.
 - Fait des sanity checks d’import (hmmlearn, jumpdiff, pykalman, gymnasium, pandas, numpy, rbergomi, trademaster) et affiche torch/jax versions + torch.cuda.is_available().
 
 ## Étape 6 — Lancer l’application Streamlit

@@ -133,7 +133,11 @@ if ($gpuAvailable -and $isLinuxOrWSL) {
 Invoke-CmdChecked "pip" @("install","--upgrade","gymnasium","tensorboard","pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly")
 
 function Install-Editable {
-    param([string]$Path)
+    param(
+        [string]$Path,
+        [string]$FallbackPip = "",
+        [switch]$SkipOnFail
+    )
     if (-not (Test-Path $Path)) { throw "Path not found: $Path" }
     $setup = Join-Path $Path "setup.py"
     $pyproject = Join-Path $Path "pyproject.toml"
@@ -147,25 +151,35 @@ function Install-Editable {
         Invoke-CmdChecked "python" @("-m","pip","install","-e",".","--no-build-isolation")
     } finally {
         Pop-Location
+    } catch {
+        Write-Warning "Editable install failed for $Path : $($_.Exception.Message)"
+        if ($FallbackPip) {
+            Write-Warning "Attempting fallback pip install '$FallbackPip' ..."
+            try {
+                Invoke-CmdChecked "python" @("-m","pip","install",$FallbackPip,"--no-build-isolation")
+                return
+            } catch {
+                Write-Warning "Fallback pip install '$FallbackPip' also failed: $($_.Exception.Message)"
+            }
+        }
+        if (-not $SkipOnFail) { throw }
+        Write-Warning "Continuing despite failure for $Path (SkipOnFail)."
     }
 }
 
 Install-Editable "./rough_bergomi"
 Install-Editable "./jumpdiff"
-Install-Editable "./hmmlearn"
+Install-Editable "./hmmlearn" -FallbackPip "hmmlearn" -SkipOnFail
 Install-Editable "./pykalman"
 Install-Editable "./RLTrader"
 Install-Editable "./TradeMaster"
 Install-Editable "./Calibrating-Rough-Volatility-Models-with-Deep-Learning"
 
-# Build limit-order-book C++ engine and Python bindings
+# Build limit-order-book C++ engine and Python bindings (MSVC only)
 $hasMsvc = Get-Command cl -ErrorAction SilentlyContinue
-$hasGcc  = Get-Command gcc -ErrorAction SilentlyContinue
-$hasClang = Get-Command clang -ErrorAction SilentlyContinue
-$compilerAvailable = $hasMsvc -or $hasGcc -or $hasClang
 $lobBuilt = $false
-if (-not $compilerAvailable) {
-    Write-Warning "No C++ compiler (cl/gcc/clang) detected. Skipping limit-order-book build. Install Build Tools for Visual Studio or a suitable toolchain to enable it."
+if (-not $hasMsvc) {
+    Write-Warning "No MSVC compiler (cl) detected. Skipping limit-order-book build. Ouvre une Developer PowerShell for VS 2022 avec les Build Tools installés puis relance setup.ps1."
 } else {
     Require-Command cmake
     Require-Command ninja
@@ -175,19 +189,6 @@ if (-not $compilerAvailable) {
         Push-Location "build"
         try {
             $cmakeArgs = @("-G","Ninja","-DCMAKE_BUILD_TYPE=Release","..")
-            if ($hasGcc) {
-                $gccPath = (Get-Command gcc).Source
-                $gxxPath = (Get-Command g++).Source
-                $ninjaPath = (Get-Command ninja).Source
-                $cmakeArgs = @(
-                    "-G","Ninja",
-                    "-DCMAKE_BUILD_TYPE=Release",
-                    "-DCMAKE_C_COMPILER=$gccPath",
-                    "-DCMAKE_CXX_COMPILER=$gxxPath",
-                    "-DCMAKE_MAKE_PROGRAM=$ninjaPath",
-                    ".."
-                )
-            }
             Invoke-CmdChecked "cmake" $cmakeArgs
             Invoke-CmdChecked "ninja"
 
@@ -207,7 +208,7 @@ if (-not $compilerAvailable) {
             }
         } catch {
             $lobBuilt = $false
-            Write-Warning "limit-order-book build failed (CMake/Ninja). If vous utilisez MSYS2, lancez setup depuis une console MINGW64 ou installez Visual Studio Build Tools. Détail: $($_.Exception.Message)"
+            Write-Warning "limit-order-book build failed (CMake/Ninja). Utilise une Developer PowerShell for VS 2022 (MSVC) puis relance setup.ps1. Détail: $($_.Exception.Message)"
         } finally {
             Pop-Location
         }
