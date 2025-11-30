@@ -76,7 +76,7 @@ def test_rough_bergomi() -> Dict[str, Any]:
         else:
             samples = np.random.normal(0, 1, size=16)
     except Exception as exc:  # noqa: BLE001
-        log.warning("rbergomi import/usage failed (%s); using numpy mock.", exc)
+        log.info("rbergomi import/usage unavailable (%s); using numpy mock.", exc)
         samples = np.random.normal(0, 1, size=16)
     return {"sample_mean": float(np.mean(samples)), "sample_std": float(np.std(samples))}
 
@@ -108,7 +108,7 @@ def test_hmmlearn() -> Dict[str, Any]:
     try:
         from hmmlearn.hmm import GaussianHMM  # type: ignore
     except Exception as exc:  # noqa: BLE001
-        log.warning("hmmlearn import failed (%s); marking as unavailable.", exc)
+        log.info("hmmlearn import unavailable (%s); marking as unavailable.", exc)
         return {"available": False, "reason": str(exc)}
 
     X = np.column_stack([np.sin(np.linspace(0, 2 * np.pi, 10)), np.ones(10)])
@@ -155,7 +155,7 @@ def test_limit_order_book_import() -> Dict[str, Any]:
 
             module_name = "olob"
         except Exception as exc:  # noqa: BLE001
-            log.warning("limit-order-book bindings not available (%s)", exc)
+            log.info("limit-order-book bindings not available (%s)", exc)
             return {"available": False, "module": None}
     return {"available": True, "module": module_name}
 
@@ -167,7 +167,7 @@ def test_rltrader_import() -> Dict[str, Any]:
 
         return {"imported": True, "attrs": sorted(dir(RLTrader))[:10]}
     except Exception as exc:  # noqa: BLE001
-        log.warning("RLTrader import failed (%s)", exc)
+        log.info("RLTrader import failed (%s)", exc)
         return {"imported": False}
 
 
@@ -178,7 +178,7 @@ def test_trademaster_import() -> Dict[str, Any]:
 
         return {"imported": True, "attrs": sorted(dir(trademaster))[:10]}
     except Exception as exc:  # noqa: BLE001
-        log.warning("TradeMaster import failed (%s)", exc)
+        log.info("TradeMaster import failed (%s)", exc)
         return {"imported": False}
 
 

@@ -65,7 +65,7 @@ def scenario_jumpdiff():
         else:
             params = {"mean": float(np.mean(returns)), "std": float(np.std(returns))}
     except Exception as exc:
-        safe_print("jumpdiff.warning", f"fallback due to {exc}")
+        safe_print("jumpdiff.info", f"fallback due to {exc}")
         params = {"mean": float(np.mean(returns)), "std": float(np.std(returns))}
     detected = int(np.sum(np.abs(returns) > 0.5))
     safe_print("jumpdiff.stats", {"detected_jumps": detected, "params": params})
@@ -79,11 +79,11 @@ def scenario_orderbook():
         try:
             import olob as lob  # type: ignore
         except Exception as exc:
-            safe_print("lob.warning", f"bindings unavailable ({exc}); skipping")
+            safe_print("lob.info", f"bindings unavailable ({exc}); skipping")
             return
     book = lob.OrderBook() if hasattr(lob, "OrderBook") else None
     if not book:
-        safe_print("lob.warning", "OrderBook class missing; skipping")
+        safe_print("lob.info", "OrderBook class missing; skipping")
         return
     for _ in range(5):
         price = 100 + random.uniform(-5, 5)
@@ -141,7 +141,7 @@ def scenario_hmm():
         switch_freq = int(np.sum(regimes[:-1] != regimes[1:]))
         safe_print("hmm.stats", {"switches": switch_freq, "unique_regimes": int(len(set(regimes)))})
     except Exception as exc:
-        safe_print("hmm.warning", f"fallback due to {exc}")
+        safe_print("hmm.info", f"fallback due to {exc}")
         safe_print("hmm.stats", {"switches": 0, "unique_regimes": 1})
 
 
