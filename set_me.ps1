@@ -64,37 +64,7 @@ if ($env:PYTHONPATH) {
     $env:PYTHONPATH = $extraPaths
 }
 
-# Ensure streamlit is available (used by app_gmgn_polyo.py)
-Invoke-CmdChecked "conda" @("install","-n",$envName,"-c","conda-forge","streamlit","-y")
-
-# Repair certifi metadata if broken (pip errors about METADATA path)
-Invoke-CmdChecked "python" @("-m","pip","install","--force-reinstall","certifi")
-
-# Reinstall pip dependencies listed in environment.yml (pip section)
-$pipPkgs = @(
-    # Core pins to align TF/JAX/pyarrow
-    "numpy==1.26.4",
-    "typing-extensions==4.15.0",
-    "tensorboard==2.18.0",
-    "tensorflow==2.18.0",
-    "pyarrow==14.0.2",
-    # RL / deps
-    "gymnasium==1.1.1",  # matches ray[rllib] constraint
-    "pyro-ppl",
-    "stable-baselines3",
-    "ray[rllib]",
-    "requests",
-    "tqdm",
-    "plotly",
-    "openai",
-    "telethon"
-)
-$pipBase = @("-m","pip","install","--upgrade","--no-build-isolation","--progress-bar","off")
-foreach ($pkg in $pipPkgs) {
-    Invoke-CmdChecked "python" ($pipBase + $pkg) -AllowedExitCodes @(0,120)
-}
-
-# GPU detection
+# GPU detection (needed before choosing JAX/Torch variants)
 $gpuAvailable = $false
 if (Get-Command nvidia-smi -ErrorAction SilentlyContinue) {
     try {
@@ -137,23 +107,56 @@ function Ensure-Torch {
 
 Ensure-Torch -UseGpu:$gpuAvailable
 
-# Install JAX
+# Install JAX aligned to TensorFlow 2.18 (ml-dtypes<0.5 and numpy 1.26.x)
 $isLinuxOrWSL = -not $IsWindows
-$jaxVersion = "0.4.28"       # aligned with TF 2.18 ml-dtypes<0.5 constraint
+$jaxVersion = "0.4.28"
 $mlDtypesVersion = "0.4.0"
+$numpyPinned = "1.26.4"
 if ($gpuAvailable -and $isLinuxOrWSL) {
-    Write-Host "Installing JAX $jaxVersion with CUDA 12 support (pins ml-dtypes to $mlDtypesVersion for TF compatibility)..."
+    Write-Host "Installing JAX $jaxVersion with CUDA 12 support (pins numpy $numpyPinned and ml-dtypes $mlDtypesVersion for TF compatibility)..."
     Invoke-CmdChecked "pip" @(
         "install","--upgrade","--force-reinstall",
-        "jax[cuda12_pip]==$jaxVersion","ml-dtypes==$mlDtypesVersion",
+        "numpy==$numpyPinned",
+        "jax[cuda12_pip]==$jaxVersion","jaxlib==$jaxVersion","ml-dtypes==$mlDtypesVersion",
         "-f","https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"
     )
 } else {
-    Write-Host "Installing JAX $jaxVersion CPU build (pins ml-dtypes to $mlDtypesVersion for TF compatibility)..."
+    Write-Host "Installing JAX $jaxVersion CPU build (pins numpy $numpyPinned and ml-dtypes $mlDtypesVersion for TF compatibility)..."
     Invoke-CmdChecked "pip" @(
         "install","--upgrade","--force-reinstall",
+        "numpy==$numpyPinned",
         "jax==$jaxVersion","jaxlib==$jaxVersion","ml-dtypes==$mlDtypesVersion"
     )
+}
+
+# Ensure streamlit is available (used by app_gmgn_polyo.py)
+Invoke-CmdChecked "conda" @("install","-n",$envName,"-c","conda-forge","streamlit","-y")
+
+# Repair certifi metadata if broken (pip errors about METADATA path)
+Invoke-CmdChecked "python" @("-m","pip","install","--force-reinstall","certifi")
+
+# Reinstall pip dependencies listed in environment.yml (pip section)
+$pipPkgs = @(
+    # Core pins to align TF/JAX/pyarrow
+    "numpy==1.26.4",
+    "typing-extensions==4.15.0",
+    "tensorboard==2.18.0",
+    "tensorflow==2.18.0",
+    "pyarrow==14.0.2",
+    # RL / deps
+    "gymnasium==1.1.1",  # matches ray[rllib] constraint
+    "pyro-ppl",
+    "stable-baselines3",
+    "ray[rllib]",
+    "requests",
+    "tqdm",
+    "plotly",
+    "openai",
+    "telethon"
+)
+$pipBase = @("-m","pip","install","--upgrade","--no-build-isolation","--progress-bar","off")
+foreach ($pkg in $pipPkgs) {
+    Invoke-CmdChecked "python" ($pipBase + $pkg) -AllowedExitCodes @(0,120)
 }
 
 # Core Python libs (top-ups)
