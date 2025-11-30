@@ -22,7 +22,9 @@ function Require-Command {
     }
 }
 
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$scriptPath = $MyInvocation.MyCommand.Definition
+$scriptName = Split-Path -Leaf $scriptPath
+$scriptDir = Split-Path -Parent $scriptPath
 Set-Location $scriptDir
 
 Require-Command conda
@@ -187,7 +189,7 @@ Install-Editable "./Calibrating-Rough-Volatility-Models-with-Deep-Learning"
 $hasMsvc = Get-Command cl -ErrorAction SilentlyContinue
 $lobBuilt = $false
 if (-not $hasMsvc) {
-    Write-Warning "No MSVC compiler (cl) detected. Skipping limit-order-book build. Ouvre une Developer PowerShell for VS 2022 avec les Build Tools installés puis relance setup.ps1."
+    Write-Warning "No MSVC compiler (cl) detected. Skipping limit-order-book build. Ouvre une Developer PowerShell for VS 2022 avec les Build Tools installés puis relance $scriptName."
 } else {
     Require-Command cmake
     Require-Command ninja
@@ -268,7 +270,7 @@ if (-not $hasMsvc) {
             }
         } catch {
             $lobBuilt = $false
-            Write-Warning "limit-order-book build failed (CMake/Ninja). Utilise une Developer PowerShell for VS 2022 (MSVC) puis relance setup.ps1. Détail: $($_.Exception.Message)"
+            Write-Warning "limit-order-book build failed (CMake/Ninja). Utilise une Developer PowerShell for VS 2022 (MSVC) puis relance $scriptName. Détail: $($_.Exception.Message)"
         } finally {
             Pop-Location
         }

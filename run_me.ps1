@@ -3,6 +3,8 @@ param(
     [string]$EnvName = "polyo-gpu"
 )
 
+$setupScriptName = "set_me.ps1"
+
 # Renseigne ton API key ici ou passe-le en argument -ApiKey.
 # Si aucune cle n'est fournie, l'app utilisera automatiquement les donnees dummy_gmgn (mode test).
 
@@ -45,8 +47,8 @@ if (-not $condaCmd) {
 
 $envExists = conda env list | Select-String "^\s*$EnvName\s"
 if (-not $envExists) {
-    Write-Warning "L'environnement '$EnvName' est introuvable. Lancement de setup.ps1 pour le creer..."
-    $setupPath = Join-Path $PSScriptRoot "setup.ps1"
+    Write-Warning "L'environnement '$EnvName' est introuvable. Lancement de $setupScriptName pour le creer..."
+    $setupPath = Join-Path $PSScriptRoot $setupScriptName
     & $setupPath
 }
 
