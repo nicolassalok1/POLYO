@@ -7,7 +7,7 @@
 	"settings": {
 		"terminal.integrated.profiles.windows": {
 			"Developer PowerShell VS2022": {
-				"path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+				"path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
 				"args": [
 					"-NoLogo",
 					"-NoExit",
