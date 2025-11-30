@@ -48,6 +48,9 @@ if ($env:PYTHONPATH) {
     $env:PYTHONPATH = $extraPaths
 }
 
+# Ensure streamlit is available (used by app_gmgn_polyo.py)
+Invoke-CmdChecked "conda" @("install","-n",$envName,"-c","conda-forge","streamlit","-y")
+
 function Invoke-CmdChecked {
     param(
         [Parameter(Mandatory=$true)][string]$Exe,

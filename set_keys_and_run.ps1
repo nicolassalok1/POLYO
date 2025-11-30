@@ -22,12 +22,12 @@ if ($keyLen -eq 0) {
     Write-Host "Cle detectee, l'app tentera le mode LIVE (GMGN API)."
 }
 
-if (Get-Command conda -ErrorAction SilentlyContinue) {
-    Write-Host "Activation de l'environnement conda '$EnvName'..."
-    conda activate $EnvName
+$condaCmd = Get-Command conda -ErrorAction SilentlyContinue
+if ($condaCmd) {
+    Write-Host "Execution via conda run dans l'env '$EnvName' avec python -m streamlit..."
+    conda run -n $EnvName python -m streamlit run app_gmgn_polyo.py
 } else {
-    Write-Warning "conda introuvable dans cette session; assure-toi d'activer l'env '$EnvName' manuellement."
+    Write-Warning "conda introuvable dans cette session; essaie d'activer l'env '$EnvName' manuellement puis relance."
+    Write-Host "Tentative d'executer streamlit directement..."
+    streamlit run app_gmgn_polyo.py
 }
-
-Write-Host "Lancement de Streamlit (app_gmgn_polyo.py)..."
-streamlit run app_gmgn_polyo.py
