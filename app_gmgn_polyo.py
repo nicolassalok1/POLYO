@@ -9,6 +9,8 @@ import pandas as pd
 import requests
 import streamlit as st
 
+import dummy_gmgn
+
 
 ROOT = Path(__file__).resolve().parent
 SYSPATHS = [
@@ -47,66 +49,86 @@ def gmgn_request(
         st.error(f"GMGN request error: {exc}")
         return None
     if not resp.ok:
-        snippet = resp.text[:300] if resp.text else resp.status_code
-        st.error(f"GMGN request failed [{resp.status_code}]: {snippet}")
         return None
     try:
         return resp.json()
     except ValueError:
-        st.error("GMGN response was not valid JSON.")
         return None
 
 
-@st.cache_data(ttl=45, show_spinner=False)
-def _cached_gmgn_request(path: str, params: Dict[str, Any], base_url: str) -> Optional[Dict[str, Any]]:
-    return gmgn_request(path, params=params, api_key=None, base_url=base_url)
+def gmgn_or_dummy(endpoint: str, params: dict | None = None, api_key: str = "") -> dict:
+    params = params or {}
+    token = params.get("token")
+    base_url = params.get("base_url", DEFAULT_BASE_URL)
+    limit = params.get("limit", 200)
+    mode = "test"
+    data: Any = None
 
-
-def gmgn_get(path: str, params: Optional[Dict[str, Any]], api_key: Optional[str], base_url: str) -> Optional[Dict[str, Any]]:
-    if api_key:
-        return gmgn_request(path, params=params, api_key=api_key, base_url=base_url)
-    return _cached_gmgn_request(path, params or {}, base_url)
-
-
-def fetch_new_pairs(api_key: Optional[str], base_url: str) -> Optional[Dict[str, Any]]:
-    return gmgn_get("/pairs/new", None, api_key, base_url)
-
-
-def fetch_token_info(token_addr: str, api_key: Optional[str], base_url: str) -> Optional[Dict[str, Any]]:
-    return gmgn_get(f"/token/{token_addr}", None, api_key, base_url)
-
-
-def fetch_recent_trades(token_addr: str, api_key: Optional[str], base_url: str, limit: int = 120) -> Optional[Dict[str, Any]]:
-    return gmgn_get(f"/token/{token_addr}/trades", {"limit": limit}, api_key, base_url)
-
-
-def fetch_price_series(token_addr: str, api_key: Optional[str], base_url: str, limit: int = 180) -> Optional[pd.DataFrame]:
-    trade_resp = fetch_recent_trades(token_addr, api_key, base_url, limit=limit)
-    trades = (trade_resp or {}).get("data") or trade_resp
-    if not trades:
-        return None
-    df = pd.DataFrame(trades)
-    if df.empty:
-        return None
-    price_col = next((c for c in ["price", "price_usd", "p", "amount_out_usd"] if c in df.columns), None)
-    time_col = next((c for c in ["ts", "timestamp", "block_timestamp", "block_time", "time"] if c in df.columns), None)
-    if price_col is None:
-        return None
-    df = df.dropna(subset=[price_col])
-    if df.empty:
-        return None
-    if time_col:
-        try:
-            df[time_col] = pd.to_datetime(df[time_col], unit="s", errors="coerce")
-        except (ValueError, TypeError):
-            df[time_col] = pd.to_datetime(df[time_col], errors="coerce")
-        df = df.sort_values(time_col)
-        df_clean = pd.DataFrame({"price": df[price_col].astype(float).values}, index=df[time_col])
+    if not api_key:
+        if endpoint == "new_pairs":
+            data = dummy_gmgn.get_dummy_new_pairs()
+        elif endpoint == "token_info":
+            data = dummy_gmgn.get_dummy_token_info(token or "")
+        elif endpoint == "trades":
+            data = dummy_gmgn.get_dummy_trades(token or "")
+        elif endpoint == "price_series":
+            data = dummy_gmgn.get_dummy_price_series(limit)
+        else:
+            data = {}
     else:
-        df_clean = pd.DataFrame({"price": df[price_col].astype(float).values})
-    if len(df_clean) > limit:
-        df_clean = df_clean.head(limit)
-    return df_clean
+        live_data: Any = None
+        if endpoint == "new_pairs":
+            live_data = gmgn_request("/pairs/new", api_key=api_key, base_url=base_url)
+        elif endpoint == "token_info":
+            live_data = gmgn_request(f"/token/{token}", api_key=api_key, base_url=base_url) if token else None
+        elif endpoint == "trades":
+            live_data = gmgn_request(
+                f"/token/{token}/trades", params={"limit": limit}, api_key=api_key, base_url=base_url
+            ) if token else None
+        elif endpoint == "price_series":
+            trades_resp = gmgn_request(
+                f"/token/{token}/trades", params={"limit": limit}, api_key=api_key, base_url=base_url
+            ) if token else None
+            trades = (trades_resp or {}).get("data") or trades_resp
+            if trades:
+                df = pd.DataFrame(trades)
+                price_col = next((c for c in ["price", "price_usd", "p", "amount_out_usd"] if c in df.columns), None)
+                time_col = next(
+                    (c for c in ["ts", "timestamp", "block_timestamp", "block_time", "time"] if c in df.columns),
+                    None,
+                )
+                if price_col:
+                    df = df.dropna(subset=[price_col])
+                    if time_col:
+                        try:
+                            df[time_col] = pd.to_datetime(df[time_col], unit="s", errors="coerce")
+                        except (ValueError, TypeError):
+                            df[time_col] = pd.to_datetime(df[time_col], errors="coerce")
+                        df = df.sort_values(time_col)
+                        ts_list = [str(ts) for ts in df[time_col]]
+                    else:
+                        ts_list = [str(i) for i in range(len(df))]
+                    prices = df[price_col].astype(float).tolist()
+                    returns = [0.0] + np.diff(np.log(np.array(prices) + 1e-9)).tolist()
+                    live_data = {"timestamps": ts_list[:limit], "prices": prices[:limit], "returns": returns[:limit]}
+        if live_data:
+            mode = "live"
+            data = live_data
+        else:
+            mode = "test"
+            if endpoint == "new_pairs":
+                data = dummy_gmgn.get_dummy_new_pairs()
+            elif endpoint == "token_info":
+                data = dummy_gmgn.get_dummy_token_info(token or "")
+            elif endpoint == "trades":
+                data = dummy_gmgn.get_dummy_trades(token or "")
+            elif endpoint == "price_series":
+                data = dummy_gmgn.get_dummy_price_series(limit)
+            else:
+                data = {}
+
+    st.session_state["gmgn_mode"] = mode
+    return {"mode": mode, "data": data}
 
 
 def generate_rough_series(steps: int, h: float, eta: float) -> tuple[np.ndarray, np.ndarray, List[str]]:
@@ -219,17 +241,21 @@ def run_synthetic_pipeline(h: float, eta: float, steps: int) -> Dict[str, Any]:
 
 
 def run_gmgn_analysis(token_addr: str, api_key: Optional[str], base_url: str) -> Dict[str, Any]:
-    df_price = fetch_price_series(token_addr, api_key, base_url, limit=200)
+    resp = gmgn_or_dummy("price_series", {"token": token_addr, "limit": 200, "base_url": base_url}, api_key or "")
+    mode = resp.get("mode", "test")
+    series = resp.get("data") or {}
     notes: List[str] = []
-    if df_price is None:
-        notes.append("GMGN price series not available; falling back to synthetic rough path.")
-        price_path, vol_path, notes_rb = generate_rough_series(90, h=0.12, eta=0.8)
-        notes.extend(notes_rb)
-        df_price = pd.DataFrame({"price": price_path})
-    else:
-        vol_path = None
-
-    prices = df_price["price"].astype(float).values
+    if mode == "test":
+        notes.append("Using dummy price series (mode=test).")
+    timestamps = series.get("timestamps") or list(range(len(series.get("prices", []))))
+    prices_list = series.get("prices") or []
+    if not prices_list:
+        notes.append("No price data available; generating synthetic rough path.")
+        price_path, vol_path, rb_notes = generate_rough_series(90, h=0.12, eta=0.8)
+        prices_list = price_path.tolist()
+        timestamps = list(range(len(prices_list)))
+        notes.extend(rb_notes)
+    prices = np.asarray(prices_list, dtype=float)
     returns = np.diff(np.log(prices + 1e-9))
     jump_stats = compute_jump_stats(returns)
     kalman_state = apply_kalman_filter(returns)
@@ -238,13 +264,14 @@ def run_gmgn_analysis(token_addr: str, api_key: Optional[str], base_url: str) ->
     notes.extend(overlay_notes)
     return {
         "prices": prices,
-        "index": df_price.index,
+        "timestamps": timestamps,
         "returns": returns,
         "jump_stats": jump_stats,
         "kalman": kalman_state,
         "regimes": regimes,
         "rough_overlay": rough_overlay,
         "notes": notes,
+        "mode": mode,
     }
 
 
@@ -289,8 +316,10 @@ def render_gmgn_live_market(api_key: Optional[str], base_url: str) -> None:
 
     st.subheader("New Pairs Scanner")
     if st.button("Fetch New Pairs"):
-        data = fetch_new_pairs(api_key, base_url)
-        pairs = (data or {}).get("data") or data
+        result = gmgn_or_dummy("new_pairs", {"base_url": base_url}, api_key or "")
+        mode = result.get("mode", "test")
+        data = result.get("data")
+        pairs = (data or {}).get("data") if isinstance(data, dict) and "data" in data else data
         if pairs:
             df_pairs = pd.DataFrame(pairs)
             if not df_pairs.empty:
@@ -300,6 +329,10 @@ def render_gmgn_live_market(api_key: Optional[str], base_url: str) -> None:
                 st.warning("GMGN returned an empty list.")
         else:
             st.error("Unable to fetch new pairs.")
+        if mode == "live":
+            st.success("Mode: LIVE (GMGN API)")
+        else:
+            st.info("Mode: TEST (Dummy data)")
     else:
         st.info('Click "Fetch New Pairs" to query GMGN.')
 
@@ -310,8 +343,9 @@ def render_gmgn_live_market(api_key: Optional[str], base_url: str) -> None:
         if not token_addr:
             st.warning("Enter a token address first.")
         else:
-            data = fetch_token_info(token_addr, api_key, base_url)
-            info = (data or {}).get("data") or data
+            result = gmgn_or_dummy("token_info", {"token": token_addr, "base_url": base_url}, api_key or "")
+            mode = result.get("mode", "test")
+            info = (result.get("data") or {}).get("data") if isinstance(result.get("data"), dict) else result.get("data")
             if info:
                 price = info.get("price") or info.get("price_usd")
                 change = info.get("price_change_24h") or info.get("change_24h")
@@ -325,6 +359,10 @@ def render_gmgn_live_market(api_key: Optional[str], base_url: str) -> None:
                 cols[3].metric("Holders", f"{holders:,}" if holders else "N/A")
                 with st.expander("Raw response"):
                     st.json(info)
+                if mode == "live":
+                    st.success("Mode: LIVE (GMGN API)")
+                else:
+                    st.info("Mode: TEST (Dummy data)")
             else:
                 st.error("No data returned for that token.")
 
@@ -335,8 +373,9 @@ def render_gmgn_live_market(api_key: Optional[str], base_url: str) -> None:
     if trades_btn and not trade_token:
         st.warning("Enter a token or pool address for trades.")
     if trades_btn and trade_token:
-        data = fetch_recent_trades(trade_token, api_key, base_url, limit=120)
-        trades = (data or {}).get("data") or data
+        result = gmgn_or_dummy("trades", {"token": trade_token, "limit": 120, "base_url": base_url}, api_key or "")
+        mode = result.get("mode", "test")
+        trades = (result.get("data") or {}).get("data") if isinstance(result.get("data"), dict) else result.get("data")
         if trades:
             df_trades = pd.DataFrame(trades)
             if not df_trades.empty:
@@ -352,6 +391,10 @@ def render_gmgn_live_market(api_key: Optional[str], base_url: str) -> None:
                 st.warning("GMGN returned no trades.")
         else:
             st.error("Trade fetch failed.")
+        if mode == "live":
+            st.success("Mode: LIVE (GMGN API)")
+        else:
+            st.info("Mode: TEST (Dummy data)")
 
 
 def render_quant_pipeline() -> None:
@@ -394,14 +437,15 @@ def render_gmgn_overlay(api_key: Optional[str], base_url: str) -> None:
             return
         result = run_gmgn_analysis(token_addr, api_key, base_url)
         prices = result["prices"]
-        index = result["index"]
+        timestamps = result.get("timestamps") or list(range(len(prices)))
         regimes = result["regimes"]
         kalman = result["kalman"]
         jump_stats = result["jump_stats"]
         overlay = result["rough_overlay"]
         notes = result["notes"]
+        mode = result.get("mode", "test")
 
-        df_price = pd.DataFrame({"price": prices}, index=index if len(index) == len(prices) else None)
+        df_price = pd.DataFrame({"price": prices}, index=timestamps if len(timestamps) == len(prices) else None)
         df_price["rough_overlay"] = overlay[: len(df_price)]
         st.line_chart(df_price)
 
@@ -414,6 +458,10 @@ def render_gmgn_overlay(api_key: Optional[str], base_url: str) -> None:
         if notes:
             for note in notes:
                 st.warning(note)
+        if mode == "live":
+            st.success("Mode: LIVE (GMGN API)")
+        else:
+            st.info("Mode: TEST (Dummy price series)")
         st.success("GMGN overlay analysis done.")
 
 
@@ -442,6 +490,10 @@ def render_rl_demo(api_key: Optional[str], base_url: str) -> None:
                 st.error("Not enough GMGN prices to run the demo.")
                 return
             sim = run_rl_simulation(prices, gmgn_data["regimes"], steps=steps)
+            if gmgn_data.get("mode") == "live":
+                st.success("Mode: LIVE (GMGN API)")
+            else:
+                st.info("Mode: TEST (Dummy price series)")
         df = sim["df"]
         st.dataframe(df)
         st.line_chart(df.set_index("t")[["cum_pnl"]])
@@ -456,6 +508,13 @@ def main() -> None:
     api_key = st.sidebar.text_input("GMGN API key (x-route-key)", type="password")
     base_url = st.sidebar.text_input("GMGN base URL", value=DEFAULT_BASE_URL)
     st.sidebar.caption("Calls are cached when no API key is provided. Supply your key to use authenticated rate limits.")
+    current_mode = st.session_state.get("gmgn_mode", "test" if not api_key else "live")
+    if current_mode == "live":
+        st.sidebar.markdown("### MODE: LIVE (GMGN API)")
+        st.sidebar.success("Using real-time GMGN data.")
+    else:
+        st.sidebar.markdown("### MODE: TEST (Dummy Data)")
+        st.sidebar.warning("Using dummy_gmgn.py data.")
 
     tab1, tab2, tab3, tab4 = st.tabs(
         [

@@ -1,16 +1,33 @@
-# Renseigne tes clés ici (ce fichier est destiné à rester local, ne pas le pousser).
-# Exemple d'usage :
-#   pwsh -File .\set_keys_and_run.ps1
+param(
+    [string]$ApiKey = "",
+    [string]$EnvName = "polyo-gpu"
+)
 
-# =======================
-#  CONFIGURE TES CLÉS
-# =======================
-$env:GMGN_API_KEY = "REMPLACE_PAR_TON_GMGN_API_KEY"
+# Renseigne ton API key ici ou passe-le en argument -ApiKey.
+# Si aucune cle n'est fournie, l'app utilisera automatiquement les donnees dummy_gmgn (mode test).
 
-# Ajoute ici d'autres clés si besoin
-# $env:OTHER_API_KEY = "..."
+if ($ApiKey -ne "") {
+    $env:GMGN_API_KEY = $ApiKey
+}
 
-Write-Host "Clés chargées dans l'environnement (GMGN_API_KEY longueur: $($env:GMGN_API_KEY.Length))."
-Write-Host "Lancement de Streamlit..."
+$keyLen = 0
+if ($env:GMGN_API_KEY) {
+    $keyLen = $env:GMGN_API_KEY.Length
+}
 
-streamlit run app_gmgn.py
+Write-Host "GMGN_API_KEY longueur: $keyLen"
+if ($keyLen -eq 0) {
+    Write-Warning "Aucune cle trouvee, l'app demarrera en mode TEST (dummy data)."
+} else {
+    Write-Host "Cle detectee, l'app tentera le mode LIVE (GMGN API)."
+}
+
+if (Get-Command conda -ErrorAction SilentlyContinue) {
+    Write-Host "Activation de l'environnement conda '$EnvName'..."
+    conda activate $EnvName
+} else {
+    Write-Warning "conda introuvable dans cette session; assure-toi d'activer l'env '$EnvName' manuellement."
+}
+
+Write-Host "Lancement de Streamlit (app_gmgn_polyo.py)..."
+streamlit run app_gmgn_polyo.py
