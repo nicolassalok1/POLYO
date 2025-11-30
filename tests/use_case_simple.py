@@ -14,6 +14,10 @@ from typing import Any, Dict, Tuple
 import numpy as np
 
 
+def log(level: str, message: str) -> None:
+    print(f"[{level}] {message}")
+
+
 # -------------------------------------------------------------------
 # sys.path bootstrap (mimics local editable layout)
 ROOT = Path(__file__).resolve().parents[1]
@@ -129,15 +133,14 @@ def run_pipeline():
         if done:
             break
 
-    print("=== SIMPLE PIPELINE SUMMARY ===")
-    print(f"prices (first 5): {prices[:5].round(4).tolist()}")
-    print(f"returns (first 5): {returns[:5].round(4).tolist()}")
-    print(f"jumpdiff params: {jump_params}")
-    print(f"smoothed (first 5): {smoothed[:5].round(4).tolist()}")
-    print(f"regimes (first 10): {regimes[:10].tolist()}")
-    print("RL trajectory (obs, action, reward):")
-    for step in traj:
-        print(step)
+    log("INFO", f"prices(first5)={prices[:5].round(4).tolist()}")
+    log("INFO", f"returns(first5)={returns[:5].round(4).tolist()}")
+    log("INFO", f"jumpdiff params={jump_params}")
+    log("INFO", f"smoothed(first5)={smoothed[:5].round(4).tolist()}")
+    log("INFO", f"regimes(first10)={regimes[:10].tolist()}")
+    for idx, step in enumerate(traj):
+        log("INFO", f"rl_step[{idx}] obs={step[0]} action={step[1]} reward={step[2]}")
+    log("SUCCESS", "use_case_simple completed")
 
 
 def main():

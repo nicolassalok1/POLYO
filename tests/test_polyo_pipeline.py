@@ -22,9 +22,19 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 
 
+# Standardised logging with SUCCESS level
+SUCCESS_LEVEL = 25
+logging.addLevelName(SUCCESS_LEVEL, "SUCCESS")
+
+def _success(self, msg, *args, **kwargs):
+    if self.isEnabledFor(SUCCESS_LEVEL):
+        self._log(SUCCESS_LEVEL, msg, args, **kwargs)
+
+logging.Logger.success = _success  # type: ignore[attr-defined]
+
 logging.basicConfig(
     level=logging.INFO,
-    format="%(levelname)s | %(name)s | %(message)s",
+    format="%(levelname)s | %(message)s",
     stream=sys.stdout,
 )
 log = logging.getLogger("polyo-smoke")
@@ -53,10 +63,10 @@ def _run_test(name: str, fn: Callable[[], Dict[str, Any]]) -> Tuple[str, bool, D
     """Run a single test function, catching exceptions and logging."""
     try:
         result = fn()
-        log.info("%s: SUCCESS -> %s", name, result)
+        log.success("%s -> %s", name, result)
         return name, True, result
     except Exception as exc:  # noqa: BLE001
-        log.warning("%s: FAILED -> %s", name, exc, exc_info=True)
+        log.error("%s -> %s", name, exc, exc_info=True)
         return name, False, None
 
 
