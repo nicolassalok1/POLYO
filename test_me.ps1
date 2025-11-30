@@ -16,27 +16,63 @@ $tests = @(
 
 $conda = Get-Command conda -ErrorAction SilentlyContinue
 
+function Log {
+    param(
+        [Parameter(Mandatory=$true)][ValidateSet("INFO","SUCCESS","WARNING","ERROR")]$Level,
+        [Parameter(Mandatory=$true)][string]$Message
+    )
+    $color = switch ($Level) {
+        "INFO"    { "Gray" }
+        "SUCCESS" { "Green" }
+        "WARNING" { "Yellow" }
+        "ERROR"   { "Red" }
+    }
+    Write-Host "[$Level] $Message" -ForegroundColor $color
+}
+
+function Build-TestCommand {
+    param([string]$FullPath)
+    if ($conda) {
+        return @("conda", @("run","-n",$EnvName,"python",$FullPath))
+    }
+    Log -Level "WARNING" -Message "conda not found, using current python for $FullPath"
+    return @("python", @($FullPath))
+}
+
+$results = @()
+
 function Run-Test {
     param([string]$Path)
     $full = Join-Path $scriptDir $Path
     if (-not (Test-Path $full)) {
-        Write-Warning "Test not found: $full"
+        Log -Level "WARNING" -Message "Test not found: $full"
+        $results += [pscustomobject]@{ Test=$Path; Status="WARNING"; ExitCode=$null }
         return
     }
-    Write-Host "Running $Path ..."
-    if ($conda) {
-        & conda run -n $EnvName python $full
+    Log -Level "INFO" -Message "Running $Path"
+    $cmd = Build-TestCommand -FullPath $full
+    & $cmd[0] @($cmd[1])
+    $exit = $LASTEXITCODE
+
+    if ($exit -eq 0) {
+        Log -Level "SUCCESS" -Message "$Path OK"
+        $results += [pscustomobject]@{ Test=$Path; Status="SUCCESS"; ExitCode=$exit }
     } else {
-        Write-Warning "conda not found, using current python."
-        & python $full
-    }
-    if ($LASTEXITCODE -ne 0) {
-        Write-Warning "$Path exited with code $LASTEXITCODE"
-    } else {
-        Write-Host "$Path OK"
+        Log -Level "ERROR" -Message "$Path exited with code $exit"
+        $results += [pscustomobject]@{ Test=$Path; Status="ERROR"; ExitCode=$exit }
     }
 }
 
 foreach ($t in $tests) {
     Run-Test -Path $t
 }
+
+$succ = ($results | Where-Object { $_.Status -eq "SUCCESS" }).Count
+$warn = ($results | Where-Object { $_.Status -eq "WARNING" }).Count
+$fail = ($results | Where-Object { $_.Status -eq "ERROR" }).Count
+$total = $results.Count
+
+Log -Level "INFO" -Message "Summary: total=$total success=$succ warning=$warn error=$fail"
+
+if ($fail -gt 0) { exit 1 }
+exit 0
