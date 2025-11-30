@@ -10,7 +10,8 @@ $tests = @(
     "tests\test_polyo_pipeline.py",
     "tests\use_case_simple.py",
     "tests\use_case_stress_tests.py",
-    "tests\test_input_stress.py"
+    "tests\test_input_stress.py",
+    "tests\test_telegram_signal_pipeline_unit.py"
 )
 
 $conda = Get-Command conda -ErrorAction SilentlyContinue
