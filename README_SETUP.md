@@ -97,8 +97,8 @@ Ce que fait `setup.ps1` :
 - Installe streamlit via conda-forge.
 - Répare certifi si cassé.
 - Réinstalle/upgrade les paquets pip clés (gymnasium, tensorboard, pyro-ppl, stable-baselines3, ray[rllib], requests, tqdm, plotly).
-- Installe en editable : jumpdiff, hmmlearn, pykalman, TradeMaster (et saute ceux sans setup).
-- Tente de builder limit-order-book (si `cl` MSVC est disponible). Sinon, warning seulement.
+- Installe en editable : jumpdiff, pykalman, TradeMaster (et saute ceux sans setup) et installe `hmmlearn` via wheel pour éviter les builds C++ sur Windows.
+- Tente de builder limit-order-book (si `cl` MSVC est disponible) en forçant le toolchain x64 (Hostx64/x64). Sinon, warning seulement.
 - Fait des sanity checks d’import (hmmlearn, jumpdiff, pykalman, gymnasium, pandas, numpy, rbergomi, trademaster) et affiche torch/jax versions + torch.cuda.is_available().
 
 ## Étape 6 — Lancer l’application Streamlit
@@ -116,7 +116,8 @@ Options :
 - **Compilateur C++ manquant** : installe Build Tools + workload C++; ou ignore si tu n’as pas besoin de limit-order-book.
 - **CUDA non détectée** : vérifier `nvidia-smi`, drivers, version CUDA. Sinon, l’app tourne en CPU.
 - **Ray/gym versions** : le setup réinstalle les versions compatibles ; en cas de conflit, nettoyer l’env (`conda env remove -n polyo-gpu`) puis relancer `setup.ps1`.
-- **Build limit-order-book** : lance `setup.ps1` depuis une **Developer PowerShell for VS 2022** (MSVC chargé) et relance. Le script continuera même si la build est sautée.
+- **Build limit-order-book** : lance `setup.ps1` depuis une **Developer PowerShell for VS 2022** (profil amd64). Le script force l’usage de `Hostx64\\x64\\cl.exe` quand il est présent. Il continue même si la build est sautée.
+- **hmmlearn** : installé via wheel (`pip install hmmlearn`) pour éviter les erreurs de linkage MSVC. Si tu veux builder en editable, ouvre une Developer PowerShell x64 et lance manuellement `pip install -e . --no-build-isolation` dans `hmmlearn/`.
 
 ## Commandes utiles
 - Supprimer l’env et repartir propre :

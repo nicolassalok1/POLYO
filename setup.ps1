@@ -149,8 +149,6 @@ function Install-Editable {
     Push-Location $Path
     try {
         Invoke-CmdChecked "python" @("-m","pip","install","-e",".","--no-build-isolation")
-    } finally {
-        Pop-Location
     } catch {
         Write-Warning "Editable install failed for $Path : $($_.Exception.Message)"
         if ($FallbackPip) {
@@ -164,12 +162,15 @@ function Install-Editable {
         }
         if (-not $SkipOnFail) { throw }
         Write-Warning "Continuing despite failure for $Path (SkipOnFail)."
+    } finally {
+        Pop-Location
     }
 }
 
 Install-Editable "./rough_bergomi"
 Install-Editable "./jumpdiff"
-Install-Editable "./hmmlearn" -FallbackPip "hmmlearn" -SkipOnFail
+# Prefer prebuilt wheel for hmmlearn to avoid local C++ build issues
+Invoke-CmdChecked "python" @("-m","pip","install","--upgrade","hmmlearn","--no-build-isolation")
 Install-Editable "./pykalman"
 Install-Editable "./RLTrader"
 Install-Editable "./TradeMaster"
@@ -183,12 +184,50 @@ if (-not $hasMsvc) {
 } else {
     Require-Command cmake
     Require-Command ninja
+    # Prefer 64-bit MSVC if available (avoid Hostx86/x86 mismatch with 64-bit Python)
+    $clCmd = Get-Command cl -ErrorAction SilentlyContinue
+    $cmakeCompilerArgs = @()
+    # Ensure Windows SDK x64 bin/libs are ahead
+    $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
+    if (Test-Path $sdkRoot) {
+        $sdkVersions = Get-ChildItem -Path (Join-Path $sdkRoot "Lib") -Directory | Sort-Object Name -Descending
+        if ($sdkVersions.Count -gt 0) {
+            $sdkVersion = $sdkVersions[0].Name
+            $sdkBinX64 = Join-Path $sdkRoot "bin\$sdkVersion\x64"
+            if (Test-Path $sdkBinX64) {
+                $env:PATH = "$sdkBinX64;$env:PATH"
+            }
+            $env:WindowsSdkDir = "$sdkRoot\"
+            $env:WindowsSDKLibVersion = "$sdkVersion\"
+            $cmakeCompilerArgs += "-DCMAKE_SYSTEM_VERSION=$sdkVersion"
+            Write-Host "Using Windows SDK $sdkVersion (x64)"
+        }
+    }
+    if ($clCmd) {
+        $clPath = $clCmd.Source
+        $cl64Path = $null
+        if ($clPath -match "Hostx86\\x86") {
+            $cl64Candidate = $clPath -replace "Hostx86\\x86","Hostx64\\x64"
+            if (Test-Path $cl64Candidate) { $cl64Path = $cl64Candidate }
+        }
+        if (-not $cl64Path) {
+            $cl64Candidate2 = $clPath -replace "Hostx64\\x64","Hostx64\\x64" # no-op fallback
+            if (Test-Path $cl64Candidate2) { $cl64Path = $cl64Candidate2 }
+        }
+        if ($cl64Path) {
+            $cmakeCompilerArgs = @("-DCMAKE_C_COMPILER=$cl64Path","-DCMAKE_CXX_COMPILER=$cl64Path")
+            Write-Host "Using MSVC compiler: $cl64Path"
+        } else {
+            Write-Host "Using default MSVC compiler from PATH: $clPath"
+        }
+    }
+
     Push-Location (Join-Path $scriptDir "limit-order-book/cpp")
     try {
         New-Item -ItemType Directory -Force -Path "build" | Out-Null
         Push-Location "build"
         try {
-            $cmakeArgs = @("-G","Ninja","-DCMAKE_BUILD_TYPE=Release","..")
+            $cmakeArgs = @("-G","Ninja","-DCMAKE_BUILD_TYPE=Release") + $cmakeCompilerArgs + ".."
             Invoke-CmdChecked "cmake" $cmakeArgs
             Invoke-CmdChecked "ninja"
 
