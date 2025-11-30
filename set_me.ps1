@@ -22,9 +22,7 @@ function Require-Command {
     }
 }
 
-$scriptPath = $MyInvocation.MyCommand.Definition
-$scriptName = Split-Path -Leaf $scriptPath
-$scriptDir = Split-Path -Parent $scriptPath
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 Set-Location $scriptDir
 
 Require-Command conda
@@ -141,8 +139,17 @@ Ensure-Torch -UseGpu:$gpuAvailable
 
 # Install JAX
 $isLinuxOrWSL = -not $IsWindows
-Write-Host "Installing JAX CPU build (pinned for TensorFlow compatibility)..."
-Invoke-CmdChecked "pip" @("install","--upgrade","--progress-bar","off","jax==0.4.33","jaxlib==0.4.33","numpy==1.26.4") -AllowedExitCodes @(0,120)
+if ($gpuAvailable -and $isLinuxOrWSL) {
+    Write-Host "Installing JAX with CUDA 12 support..."
+    Invoke-CmdChecked "pip" @("install","--upgrade","jax[cuda12]","-f","https://storage.googleapis.com/jax-releases/jax_cuda_releases.html")
+} else {
+    Write-Host "Installing JAX CPU build..."
+    Invoke-CmdChecked "pip" @("install","--upgrade","jax[cpu]")
+}
+
+# Core Python libs (top-ups)
+Invoke-CmdChecked "pip" @("install","--upgrade","gymnasium","tensorboard","pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly")
+Invoke-CmdChecked "pip" @("install","--upgrade","openai","telethon")
 
 # Core Python libs (top-ups)
 Invoke-CmdChecked "pip" @(
@@ -200,7 +207,7 @@ Install-Editable "./Calibrating-Rough-Volatility-Models-with-Deep-Learning"
 $hasMsvc = Get-Command cl -ErrorAction SilentlyContinue
 $lobBuilt = $false
 if (-not $hasMsvc) {
-    Write-Warning "No MSVC compiler (cl) detected. Skipping limit-order-book build. Ouvre une Developer PowerShell for VS 2022 avec les Build Tools installés puis relance $scriptName."
+    Write-Warning "No MSVC compiler (cl) detected. Skipping limit-order-book build. Ouvre une Developer PowerShell for VS 2022 avec les Build Tools installés puis relance set_me.ps1."
 } else {
     Require-Command cmake
     Require-Command ninja
@@ -281,7 +288,7 @@ if (-not $hasMsvc) {
             }
         } catch {
             $lobBuilt = $false
-            Write-Warning "limit-order-book build failed (CMake/Ninja). Utilise une Developer PowerShell for VS 2022 (MSVC) puis relance $scriptName. Détail: $($_.Exception.Message)"
+            Write-Warning "limit-order-book build failed (CMake/Ninja). Utilise une Developer PowerShell for VS 2022 (MSVC) puis relance set_me.ps1. Détail: $($_.Exception.Message)"
         } finally {
             Pop-Location
         }

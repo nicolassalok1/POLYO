@@ -51,8 +51,8 @@ if (-not $condaCmd) {
 
 $envExists = conda env list | Select-String "^\s*$EnvName\s"
 if (-not $envExists) {
-    Write-Warning "L'environnement '$EnvName' est introuvable. Lancement de $setupScriptName pour le creer..."
-    $setupPath = Join-Path $PSScriptRoot $setupScriptName
+    Write-Warning "L'environnement '$EnvName' est introuvable. Lancement de set_me.ps1 pour le creer..."
+    $setupPath = Join-Path $PSScriptRoot "set_me.ps1"
     & $setupPath
 }
 
