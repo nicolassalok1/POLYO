@@ -40,7 +40,7 @@ Invoke-Expression $condaHook
 # Create or update environment
 $envName = "polyo-gpu"
 $existing = conda env list | Select-String "^\s*$envName\s"
-$condaPkgs = @("python=3.10","numpy","scipy","pandas","numba","matplotlib","seaborn","scikit-learn","cython","pip","cmake","ninja","make","pybind11")
+$condaPkgs = @("python=3.10","numpy","scipy","pandas","numba","matplotlib","seaborn","scikit-learn","cython","cryptography","streamlit","pip","cmake","ninja","make","pybind11")
 if ($existing) {
     Write-Host "Environment '$envName' already exists. Installing/updating core conda packages..."
     $condaArgs = @("install","-n",$envName,"-y") + $condaPkgs

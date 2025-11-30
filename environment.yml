@@ -12,6 +12,8 @@ dependencies:
   - seaborn
   - scikit-learn
   - cython
+  - cryptography
+  - streamlit
   - pip
   - cmake
   - ninja

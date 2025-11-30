@@ -10,6 +10,7 @@ import requests
 import streamlit as st
 
 import dummy_gmgn
+import secure_api_key
 
 
 ROOT = Path(__file__).resolve().parent
@@ -555,16 +556,51 @@ def main() -> None:
             """
         )
 
-    api_key = st.sidebar.text_input("GMGN API key (x-route-key)", type="password")
+    stored_key = secure_api_key.load_api_key()
+    stored_hash = secure_api_key.load_api_key_hash()
+    api_key_input = st.sidebar.text_input("GMGN API key (x-route-key)", type="password")
     base_url = st.sidebar.text_input("GMGN base URL", value=DEFAULT_BASE_URL)
-    st.sidebar.caption("Calls are cached when no API key is provided. Supply your key to use authenticated rate limits.")
-    current_mode = st.session_state.get("gmgn_mode", "test" if not api_key else "live")
-    if current_mode == "live":
+    save_btn = st.sidebar.button("Save API Key Securely")
+    clear_btn = st.sidebar.button("Clear API Key")
+
+    if save_btn:
+        if api_key_input:
+            secure_api_key.encrypt_and_store_api_key(api_key_input)
+            stored_key = secure_api_key.load_api_key()
+            stored_hash = secure_api_key.load_api_key_hash()
+            st.sidebar.success("API key encrypted and stored locally.")
+        else:
+            st.sidebar.warning("Enter a key before saving.")
+    if clear_btn:
+        secure_api_key.clear_api_key()
+        stored_key = None
+        stored_hash = None
+        st.sidebar.info("Stored API key cleared.")
+
+    if stored_hash:
+        st.sidebar.markdown("Encrypted key loaded.")
+        st.sidebar.markdown(f"SHA-256 prefix: `{stored_hash[:12]}…`")
+    else:
+        st.sidebar.warning("No API key stored.")
+
+    effective_key = api_key_input or stored_key or ""
+    mode_status = "test"
+    if effective_key:
+        probe = gmgn_or_dummy("new_pairs", {"limit": 5, "base_url": base_url}, effective_key)
+        mode_status = probe.get("mode", "test")
+    else:
+        st.session_state["gmgn_mode"] = "test"
+
+    if mode_status == "live":
         st.sidebar.markdown("### MODE: LIVE (GMGN API)")
         st.sidebar.success("Using real-time GMGN data.")
     else:
-        st.sidebar.markdown("### MODE: TEST (Dummy Data)")
-        st.sidebar.warning("Using dummy_gmgn.py data.")
+        if effective_key:
+            st.sidebar.markdown("### MODE: TEST (Dummy Data)")
+            st.sidebar.warning("API key provided but live check failed; using dummy data.")
+        else:
+            st.sidebar.markdown("### MODE: TEST (Dummy Data)")
+            st.sidebar.info("No API key; using dummy data.")
 
     tab1, tab2, tab3, tab4 = st.tabs(
         [
@@ -576,13 +612,13 @@ def main() -> None:
     )
 
     with tab1:
-        render_gmgn_live_market(api_key, base_url)
+        render_gmgn_live_market(effective_key, base_url)
     with tab2:
         render_quant_pipeline()
     with tab3:
-        render_gmgn_overlay(api_key, base_url)
+        render_gmgn_overlay(effective_key, base_url)
     with tab4:
-        render_rl_demo(api_key, base_url)
+        render_rl_demo(effective_key, base_url)
 
 
 if __name__ == "__main__":
