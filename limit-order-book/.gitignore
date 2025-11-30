@@ -1,0 +1,15 @@
+/build/
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+.DS_Store
+*.pyc
+__pycache__/
+raw/
+parquet/
+*.json.gz
+*.jsonl.gz
+
+.venv
