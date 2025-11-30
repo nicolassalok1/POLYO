@@ -17,25 +17,12 @@ $tests = @(
 $conda = Get-Command conda -ErrorAction SilentlyContinue
 
 function Ensure-Pytest {
-    $checkPytest = @'
-import importlib, sys
-sys.exit(0 if importlib.util.find_spec("pytest") else 1)
-'@
     if ($conda) {
-        $checkPytest | conda run -n $EnvName python -
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Installing pytest in '$EnvName'..."
-            conda run -n $EnvName python -m pip install pytest -q
-        }
+        Write-Host "Ensuring pytest is installed in '$EnvName'..."
+        conda run -n $EnvName python -m pip install pytest -q
     } else {
-        python - <<'PY'
-import importlib, sys
-sys.exit(0 if importlib.util.find_spec("pytest") else 1)
-PY
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Installing pytest in current environment..."
-            python -m pip install pytest -q
-        }
+        Write-Host "Ensuring pytest is installed in current environment..."
+        python -m pip install pytest -q
     }
 }
 

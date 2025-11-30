@@ -258,7 +258,11 @@ class OpenAISentimentClient:
         tokens = set()
         for match in TOKEN_PATTERN.findall(text):
             cleaned = match.replace("$", "")
-            if cleaned.lower() in {"usd", "usdt", "sol", "eth", "btc"}:
+            if cleaned.lower() in {"usd", "usdt", "usdc"}:
+                continue
+            if cleaned.islower():
+                continue  # skip plain lowercase words like "and", "now"
+            if cleaned.lower() in {"buy", "sell", "long", "short", "now", "moon", "pump", "and"}:
                 continue
             tokens.add(cleaned.upper())
         return list(tokens)
@@ -466,4 +470,3 @@ class TelegramSignalPipeline:
 
 def build_feedback_from_pnl(source_type: str, pnl: float, notional: float = 1.0) -> SignalFeedback:
     return SignalFeedback(source_type=source_type, realized_pnl=pnl, notional=notional)
-

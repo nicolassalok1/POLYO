@@ -17,15 +17,19 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Tuple
 
 import numpy as np
-from telegram_signal_pipeline import (
+# Optional imports guarded inside tests
+ROOT = Path(__file__).resolve().parents[1]
+
+root_str = str(ROOT)
+if root_str not in sys.path:
+    sys.path.insert(0, root_str)
+
+from telegram_signal_pipeline import (  # noqa: E402
     OpenAISentimentClient,
     ReliabilityLearner,
     TelegramMessage,
     TelegramSignalPipeline,
 )
-
-# Optional imports guarded inside tests
-ROOT = Path(__file__).resolve().parents[1]
 
 
 logging.basicConfig(
@@ -38,6 +42,9 @@ log = logging.getLogger("polyo-smoke")
 
 def _ensure_workspace_paths() -> None:
     """Prepend local repo modules to sys.path so imports work without pip installs."""
+    root_str = str(ROOT)
+    if root_str not in sys.path:
+        sys.path.insert(0, root_str)
     extra_paths = {
         "rbergomi": ROOT / "rough_bergomi" / "rbergomi",
         "RLTrader": ROOT / "RLTrader" / "lib",

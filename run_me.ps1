@@ -1,25 +1,29 @@
 param(
     [string]$ApiKey = "",
+    [string]$OpenAIKey = "",
     [string]$EnvName = "polyo-gpu"
 )
 
 # Renseigne ton API key ici ou passe-le en argument -ApiKey.
 # Si aucune cle n'est fournie, l'app utilisera automatiquement les donnees dummy_gmgn (mode test).
 
-if ($ApiKey -ne "") {
-    $env:GMGN_API_KEY = $ApiKey
-}
+if ($ApiKey -ne "") { $env:GMGN_API_KEY = $ApiKey }
+if ($OpenAIKey -ne "") { $env:OPENAI_API_KEY = $OpenAIKey }
 
-$keyLen = 0
-if ($env:GMGN_API_KEY) {
-    $keyLen = $env:GMGN_API_KEY.Length
-}
+$gmgnLen = 0
+if ($env:GMGN_API_KEY) { $gmgnLen = $env:GMGN_API_KEY.Length }
+$openaiLen = 0
+if ($env:OPENAI_API_KEY) { $openaiLen = $env:OPENAI_API_KEY.Length }
 
-Write-Host "GMGN_API_KEY longueur: $keyLen"
-if ($keyLen -eq 0) {
-    Write-Warning "Aucune cle trouvee, l'app demarrera en mode TEST (dummy data)."
+Write-Host "GMGN_API_KEY longueur: $gmgnLen"
+if ($gmgnLen -eq 0) {
+    Write-Warning "Aucune cle GMGN detectee, l'app demarrera en mode TEST (dummy data)."
 } else {
-    Write-Host "Cle detectee, l'app tentera le mode LIVE (GMGN API)."
+    Write-Host "Cle GMGN detectee, tentative de mode LIVE."
+}
+Write-Host "OPENAI_API_KEY longueur: $openaiLen"
+if ($openaiLen -eq 0) {
+    Write-Warning "Pas de cle OpenAI; le module Telegram/Sentiment utilisera le mode heuristique."
 }
 
 $gpuAvailable = $false
