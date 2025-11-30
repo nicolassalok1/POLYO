@@ -13,7 +13,7 @@ from typing import Any, List
 import numpy as np
 
 # sys.path bootstrap
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "rough_bergomi"))
 sys.path.insert(0, str(ROOT / "jumpdiff"))
 sys.path.insert(0, str(ROOT / "pykalman"))

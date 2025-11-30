@@ -11,12 +11,13 @@ from __future__ import annotations
 
 import logging
 import sys
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Tuple
 
 import numpy as np
-from pathlib import Path
 
 # Optional imports guarded inside tests
+ROOT = Path(__file__).resolve().parents[1]
 
 
 logging.basicConfig(
@@ -40,7 +41,7 @@ def _run_test(name: str, fn: Callable[[], Dict[str, Any]]) -> Tuple[str, bool, D
 
 def _load_pykalman_local():
     """Load pykalman from local source to avoid namespace/editable issues."""
-    init_path = Path(__file__).resolve().parent / "pykalman" / "pykalman" / "__init__.py"
+    init_path = ROOT / "pykalman" / "pykalman" / "__init__.py"
     if not init_path.exists():
         raise ImportError("pykalman source not found at expected path")
     import importlib.util
