@@ -23,45 +23,11 @@ Certaines dépendances (limit-order-book) nécessitent un compilateur C++.
 
 > Si tu n’as pas besoin de `limit-order-book`, tu peux ignorer l’absence de compilateur (warning seulement).
 
-### Alternative : toolchain MSYS2/MinGW (Windows)
-Si tu préfères éviter Visual Studio :
-1. Installe **MSYS2** (chemin par défaut `C:\msys64`).
-2. Ouvre la console **MSYS2 MINGW64** (icône bleue “M”, pas l’icône violette “MSYS”).
-3. Mets à jour MSYS2 :
-   ```bash
-   pacman -Syu
-   # si demandé, relance la console, puis :
-   pacman -Syu
-   ```
-4. Installe la toolchain et les outils :
-   ```bash
-   pacman -S --needed base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja
-   ```
-5. (Optionnel) Ajoute au PATH Windows : `C:\msys64\mingw64\bin` pour utiliser gcc/ninja depuis PowerShell.
-6. Redémarre PowerShell et relance `pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1` : le script détectera `gcc/clang` et tentera de builder `limit-order-book`.
-
-> Rappels : utiliser **MINGW64**, pas MSYS ni CLANG par défaut ; vérifier avec `gcc --version` ou `ninja --version` dans PowerShell après ajout au PATH.
-
-#### Ajouter MINGW64 au PATH depuis PowerShell
-- Session courante :
-  ```pwsh
-  $mingw = "C:\msys64\mingw64\bin"
-  if (-not ($env:PATH -split ";" | Where-Object { $_ -ieq $mingw })) {
-      $env:PATH = "$mingw;$env:PATH"
-  }
-  gcc --version
-  ninja --version
-  cmake --version
-  ```
-- Persistant (admin) :
-  ```pwsh
-  $mingw = "C:\msys64\mingw64\bin"
-  $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
-  if (-not ($machinePath -split ";" | Where-Object { $_ -ieq $mingw })) {
-      [Environment]::SetEnvironmentVariable("Path", "$mingw;$machinePath", "Machine")
-  }
-  ```
-  Puis rouvre PowerShell et vérifie `gcc --version`.
+### Builder limit-order-book avec MSVC
+- Ouvre une **Developer PowerShell for VS 2022** (menu Démarrer) afin de charger `cl`, CMake et Ninja.
+- Vérifie `cl` dans le terminal.
+- Dans `D:\PythonDProjects\POLYO`, relance `pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1` pour builder `limit-order-book`.
+- Pas besoin de rendre ça permanent : relance simplement une Developer PowerShell quand tu veux reconstruire `limit-order-book`. Si tu restes en PowerShell standard, appelle `VsDevCmd.bat` avant le setup.
 
 ## Étape 3 — Miniconda/Conda
 1. Installe **Miniconda** ou **Anaconda** (choisir “Add conda to PATH” ou initialise le shell via `conda init powershell`).
