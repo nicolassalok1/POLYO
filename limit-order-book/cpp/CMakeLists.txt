@@ -137,9 +137,8 @@ if(LOB_BUILD_PYBIND)
   set_target_properties(lob_cpp PROPERTIES OUTPUT_NAME "_lob")
 
   # Install rule (not used in Docker flow, but fine to keep)
-  if(WIN32)
-    install(TARGETS lob_cpp RUNTIME DESTINATION olob)
-  else()
-    install(TARGETS lob_cpp LIBRARY DESTINATION olob)
-  endif()
+  install(TARGETS lob_cpp
+          RUNTIME DESTINATION olob
+          LIBRARY DESTINATION olob
+          ARCHIVE DESTINATION olob)
 endif()

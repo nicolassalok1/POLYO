@@ -98,7 +98,7 @@ Ce que fait `setup.ps1` :
 - Répare certifi si cassé.
 - Réinstalle/upgrade les paquets pip clés (gymnasium, tensorboard, pyro-ppl, stable-baselines3, ray[rllib], requests, tqdm, plotly).
 - Installe en editable : jumpdiff, pykalman, TradeMaster (et saute ceux sans setup) et installe `hmmlearn` via wheel pour éviter les builds C++ sur Windows.
-- Tente de builder limit-order-book (si `cl` MSVC est disponible) en forçant le toolchain x64 (Hostx64/x64), en pointant sur le Windows SDK x64 le plus récent et en préfixant `LIB` avec les libs x64 SDK/MSVC. Sinon, warning seulement.
+- Tente de builder limit-order-book (si `cl` MSVC est disponible) en forçant le toolchain x64 (Hostx64/x64), en pointant sur le Windows SDK x64 le plus récent, en préfixant `LIB` avec les libs x64 SDK/MSVC, et en fixant les destinations d’install CMake pour le module pybind (`CMAKE_INSTALL_LIBDIR=lib` et `CMAKE_LIBRARY_OUTPUT_DIRECTORY=lib`). Sinon, warning seulement.
 - Fait des sanity checks d’import (hmmlearn, jumpdiff, pykalman, gymnasium, pandas, numpy, rbergomi, trademaster) et affiche torch/jax versions + torch.cuda.is_available().
 
 ## Étape 6 — Lancer l’application Streamlit
@@ -116,8 +116,9 @@ Options :
 - **Compilateur C++ manquant** : installe Build Tools + workload C++; ou ignore si tu n’as pas besoin de limit-order-book.
 - **CUDA non détectée** : vérifier `nvidia-smi`, drivers, version CUDA. Sinon, l’app tourne en CPU.
 - **Ray/gym versions** : le setup réinstalle les versions compatibles ; en cas de conflit, nettoyer l’env (`conda env remove -n polyo-gpu`) puis relancer `setup.ps1`.
-- **Build limit-order-book** : lance `setup.ps1` depuis une **Developer PowerShell for VS 2022** (profil amd64). Le script force l’usage de `Hostx64\\x64\\cl.exe`, du Windows SDK x64 détecté, et préfixe `LIB` avec les libs x64 SDK/MSVC pour éviter les liens x86. Il continue même si la build est sautée.
+- **Build limit-order-book** : lance `setup.ps1` depuis une **Developer PowerShell for VS 2022** (profil amd64). Le script force l’usage de `Hostx64\\x64\\cl.exe`, du Windows SDK x64 détecté, préfixe `LIB` avec les libs x64 SDK/MSVC, et fixe les destinations d’install CMake (`CMAKE_INSTALL_LIBDIR/lib`, `CMAKE_LIBRARY_OUTPUT_DIRECTORY/lib`) pour éviter l’erreur “install TARGETS given no LIBRARY DESTINATION”. Il continue même si la build est sautée.
 - **hmmlearn** : installé via wheel (`pip install hmmlearn`) pour éviter les erreurs de linkage MSVC. Si tu veux builder en editable, ouvre une Developer PowerShell x64 et lance manuellement `pip install -e . --no-build-isolation` dans `hmmlearn/`.
+- **Windows 10 SDK** : installe le SDK Windows 10 via Visual Studio Build Tools (onglet “Composants individuels” → “Kit de développement logiciel (SDK) Windows 10”). Sans lui, la build MSVC x64 du limit-order-book peut échouer faute de libs/headers.
 
 ## Commandes utiles
 - Supprimer l’env et repartir propre :
