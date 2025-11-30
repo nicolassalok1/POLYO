@@ -50,8 +50,7 @@ if (-not $envExists) {
     & $setupPath
 }
 
-Write-Host "Verification de streamlit dans l'env '$EnvName'..."
-conda run -n $EnvName python - <<'PY'
+$pyCheck = @'
 import importlib, sys
 try:
     importlib.import_module("streamlit")
@@ -59,7 +58,10 @@ try:
 except Exception as exc:
     print(f"missing_streamlit::{exc}")
     sys.exit(1)
-PY
+'@
+
+Write-Host "Verification de streamlit dans l'env '$EnvName'..."
+$pyCheck | conda run -n $EnvName python -
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Installation de streamlit dans '$EnvName'..."
     conda install -n $EnvName -c conda-forge streamlit -y
