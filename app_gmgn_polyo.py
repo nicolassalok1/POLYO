@@ -313,6 +313,16 @@ def run_rl_simulation(prices: np.ndarray, regimes: Optional[np.ndarray], steps: 
 def render_gmgn_live_market(api_key: Optional[str], base_url: str) -> None:
     st.header("GMGN Live Market")
     st.caption("Explore live Solana pairs from GMGN. All calls gracefully degrade on errors.")
+    with st.expander("ℹ️ Comment fonctionne cet onglet ?"):
+        st.markdown(
+            """
+            - Toutes les requêtes passent par `gmgn_or_dummy` : `mode: live` si la clé GMGN répond, sinon `mode: test` avec `dummy_gmgn`.
+            - **New Pairs** : appelle `/pairs/new` (ou dummy). Affiche token/pair/liquidité/volume/horodatage.
+            - **Token Snapshot** : appelle `/token/{mint}` (ou dummy). Affiche metrics clés (prix, change, liquidity, volume, holders) + JSON brut.
+            - **Recent Trades** : appelle `/token/{mint}/trades` (ou dummy) avec limite, table des trades et histogramme du montant.
+            - Les badges LIVE/TEST s’affichent à chaque section. Les erreurs API sont capturées via `st.error`.
+            """
+        )
 
     st.subheader("New Pairs Scanner")
     if st.button("Fetch New Pairs"):
@@ -400,6 +410,16 @@ def render_gmgn_live_market(api_key: Optional[str], base_url: str) -> None:
 def render_quant_pipeline() -> None:
     st.header("Quant Pipeline (Synthetic)")
     st.write("Simulate a rough volatility path, add jump diffusion stats, smooth with a Kalman filter, and detect regimes with HMM.")
+    with st.expander("ℹ️ Comment fonctionne cet onglet ?"):
+        st.markdown(
+            """
+            - Génère un chemin rough volatility via `rbergomi` (ou fallback bruité) sur un horizon court.
+            - Calcule les retours log, estime des statistiques de sauts avec `jumpdiff` (amplitude, intensité).
+            - Lissage de la série par `pykalman.KalmanFilter` pour obtenir un état latent.
+            - Détection de régimes (1–3) avec `hmmlearn.GaussianHMM` sur les features (retours, état Kalman).
+            - Affiche : trajectoires prix/vol, régimes, état Kalman, stats de sauts. Toute exception est capturée et signalée.
+            """
+        )
     col_h, col_eta, col_steps = st.columns(3)
     h = col_h.slider("H (roughness)", 0.01, 0.5, 0.12, 0.01)
     eta = col_eta.slider("eta (vol-of-vol)", 0.1, 3.0, 0.8, 0.05)
@@ -430,6 +450,15 @@ def render_quant_pipeline() -> None:
 
 def render_gmgn_overlay(api_key: Optional[str], base_url: str) -> None:
     st.header("GMGN + Quant Overlay")
+    with st.expander("ℹ️ Comment fonctionne cet onglet ?"):
+        st.markdown(
+            """
+            - Récupère une série de prix pour un token via `gmgn_or_dummy("price_series")` (live si clé valide, sinon dummy).
+            - Calcule retours log, stats de sauts (`jumpdiff`), lissage Kalman (`pykalman`), régimes HMM (`hmmlearn`).
+            - Génère en parallèle une trajectoire rough synthétique pour comparaison et l’overlay sur le graphe de prix.
+            - Si l’historique GMGN est insuffisant, fallback dummy + avertissement. Les graphiques montrent prix + overlay rough, régimes, état Kalman, stats de sauts.
+            """
+        )
     token_addr = st.text_input("Token address for overlay", key="overlay_input")
     if st.button("Fetch + Analyze"):
         if not token_addr:
@@ -467,6 +496,15 @@ def render_gmgn_overlay(api_key: Optional[str], base_url: str) -> None:
 
 def render_rl_demo(api_key: Optional[str], base_url: str) -> None:
     st.header("RL Shitcoin Demo")
+    with st.expander("ℹ️ Comment fonctionne cet onglet ?"):
+        st.markdown(
+            """
+            - Source de données : pipeline synthétique ou série de prix GMGN (`gmgn_or_dummy("price_series")` si clé, sinon dummy).
+            - Environnement jouet : état = prix normalisé (et régime si présent), actions {0: hold, 1: long, 2: short}, reward = Δprix * position.
+            - Politique aléatoire sans entraînement, nombre d’étapes court (5–30). PnL cumulé et drawdown calculés à chaque pas.
+            - Sorties : DataFrame (t, prix, régime, action, reward, cum_PnL) + courbe de PnL. Exceptions capturées pour ne pas bloquer l’UI.
+            """
+        )
     source = st.radio("Data source", ["Synthetic", "GMGN token"])
     steps = st.slider("Simulation steps", 5, 30, 12, 1)
     token_addr = None
@@ -504,6 +542,18 @@ def main() -> None:
     st.set_page_config(page_title="GMGN + POLYO Playground", layout="wide")
     st.title("GMGN + POLYO Quant Playground")
     st.write("Live GMGN market hooks combined with rough volatility, jump diffusion, Kalman smoothing, HMM regimes, and a tiny RL loop.")
+
+    with st.expander("📘 Guide rapide de l'application (GMGN live ou dummy)"):
+        st.markdown(
+            """
+            - **Modes de données** : clé GMGN dans la barre latérale -> `mode: live` (appels GMGN) ; sans clé ou en cas d’échec -> `mode: test` (fallback `dummy_gmgn`). Le mode actif est affiché dans le bandeau latéral.
+            - **GMGN Live Market** : scanner de nouveaux pairs, snapshot d’un token (metrics + JSON brut), trades récents (table + bar chart). Toutes les requêtes passent par `gmgn_or_dummy`, donc utilisables même sans clé.
+            - **Quant Pipeline (Synthetic)** : génère un chemin rough-vol/jump, calcule les retours, stats de sauts (jumpdiff), lissage Kalman (pykalman), régimes HMM (hmmlearn). Léger et purement synthétique.
+            - **GMGN + Quant Overlay** : récupère ou simule une série de prix GMGN pour un token, calcule retours, sauts, Kalman, régimes, et ajoute une trajectoire rough synthétique en overlay. Bascule en dummy si l’historique GMGN est insuffisant.
+            - **RL Shitcoin Demo** : mini environnement RL jouet (actions hold/long/short, PnL cumulé) sur données synthétiques ou prix GMGN (live/dummy). Exécution courte, pas d’entraînement.
+            - **Barre latérale** : saisie clé GMGN + URL de base. Badge de mode (LIVE/TEST). Les caches sont activés côté dummy pour répondre vite.
+            """
+        )
 
     api_key = st.sidebar.text_input("GMGN API key (x-route-key)", type="password")
     base_url = st.sidebar.text_input("GMGN base URL", value=DEFAULT_BASE_URL)
