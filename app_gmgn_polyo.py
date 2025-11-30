@@ -1,0 +1,480 @@
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+import pandas as pd
+import requests
+import streamlit as st
+
+
+ROOT = Path(__file__).resolve().parent
+SYSPATHS = [
+    ROOT / "rough_bergomi",
+    ROOT / "rough_bergomi" / "rbergomi",
+    ROOT / "jumpdiff",
+    ROOT / "pykalman",
+    ROOT / "hmmlearn" / "src",
+    ROOT / "limit-order-book" / "python",
+    ROOT / "RLTrader",
+    ROOT / "TradeMaster",
+]
+for p in SYSPATHS:
+    sys.path.insert(0, str(p))
+
+
+DEFAULT_BASE_URL = "https://gmgn.ai/api/v1/solana"
+
+
+def gmgn_request(
+    path: str,
+    params: Optional[Dict[str, Any]] = None,
+    api_key: Optional[str] = None,
+    base_url: str = DEFAULT_BASE_URL,
+) -> Optional[Dict[str, Any]]:
+    """Thin wrapper around requests.get with friendly Streamlit errors."""
+    params = params or {}
+    url = path if path.startswith("http") else f"{base_url.rstrip('/')}/{path.lstrip('/')}"
+    headers: Dict[str, str] = {"accept": "application/json"}
+    if api_key:
+        headers["x-route-key"] = api_key  # per GMGN docs
+        headers["gmgn-api-key"] = api_key  # compatibility with older key name
+    try:
+        resp = requests.get(url, params=params, headers=headers, timeout=10)
+    except requests.RequestException as exc:
+        st.error(f"GMGN request error: {exc}")
+        return None
+    if not resp.ok:
+        snippet = resp.text[:300] if resp.text else resp.status_code
+        st.error(f"GMGN request failed [{resp.status_code}]: {snippet}")
+        return None
+    try:
+        return resp.json()
+    except ValueError:
+        st.error("GMGN response was not valid JSON.")
+        return None
+
+
+@st.cache_data(ttl=45, show_spinner=False)
+def _cached_gmgn_request(path: str, params: Dict[str, Any], base_url: str) -> Optional[Dict[str, Any]]:
+    return gmgn_request(path, params=params, api_key=None, base_url=base_url)
+
+
+def gmgn_get(path: str, params: Optional[Dict[str, Any]], api_key: Optional[str], base_url: str) -> Optional[Dict[str, Any]]:
+    if api_key:
+        return gmgn_request(path, params=params, api_key=api_key, base_url=base_url)
+    return _cached_gmgn_request(path, params or {}, base_url)
+
+
+def fetch_new_pairs(api_key: Optional[str], base_url: str) -> Optional[Dict[str, Any]]:
+    return gmgn_get("/pairs/new", None, api_key, base_url)
+
+
+def fetch_token_info(token_addr: str, api_key: Optional[str], base_url: str) -> Optional[Dict[str, Any]]:
+    return gmgn_get(f"/token/{token_addr}", None, api_key, base_url)
+
+
+def fetch_recent_trades(token_addr: str, api_key: Optional[str], base_url: str, limit: int = 120) -> Optional[Dict[str, Any]]:
+    return gmgn_get(f"/token/{token_addr}/trades", {"limit": limit}, api_key, base_url)
+
+
+def fetch_price_series(token_addr: str, api_key: Optional[str], base_url: str, limit: int = 180) -> Optional[pd.DataFrame]:
+    trade_resp = fetch_recent_trades(token_addr, api_key, base_url, limit=limit)
+    trades = (trade_resp or {}).get("data") or trade_resp
+    if not trades:
+        return None
+    df = pd.DataFrame(trades)
+    if df.empty:
+        return None
+    price_col = next((c for c in ["price", "price_usd", "p", "amount_out_usd"] if c in df.columns), None)
+    time_col = next((c for c in ["ts", "timestamp", "block_timestamp", "block_time", "time"] if c in df.columns), None)
+    if price_col is None:
+        return None
+    df = df.dropna(subset=[price_col])
+    if df.empty:
+        return None
+    if time_col:
+        try:
+            df[time_col] = pd.to_datetime(df[time_col], unit="s", errors="coerce")
+        except (ValueError, TypeError):
+            df[time_col] = pd.to_datetime(df[time_col], errors="coerce")
+        df = df.sort_values(time_col)
+        df_clean = pd.DataFrame({"price": df[price_col].astype(float).values}, index=df[time_col])
+    else:
+        df_clean = pd.DataFrame({"price": df[price_col].astype(float).values})
+    if len(df_clean) > limit:
+        df_clean = df_clean.head(limit)
+    return df_clean
+
+
+def generate_rough_series(steps: int, h: float, eta: float) -> tuple[np.ndarray, np.ndarray, List[str]]:
+    notes: List[str] = []
+    try:
+        from rbergomi import rBergomi
+
+        a_param = float(h - 0.5)
+        a_param = min(-0.01, a_param)  # ensure negative alpha as used in model
+        rb = rBergomi(n=steps, N=1, T=1.0, a=a_param)
+        dW1 = rb.dW1()
+        Y = rb.Y(dW1)
+        V = rb.V(Y, xi=0.04, eta=eta)
+        dW2 = rb.dW2()
+        dB = rb.dB(dW1, dW2, rho=-0.7)
+        S = rb.S(V, dB, S0=1.0)
+        price_path = S[0]
+        vol_path = V[0]
+    except Exception as exc:  # noqa: BLE001
+        notes.append(f"rough_bergomi unavailable, fallback random path ({exc})")
+        rng = np.random.default_rng(42)
+        price_path = np.cumprod(1 + rng.normal(0, 0.01, steps + 1))
+        vol_path = np.maximum(0.01, rng.normal(0.2, 0.02, steps + 1))
+    return price_path, vol_path, notes
+
+
+def compute_jump_stats(returns: np.ndarray) -> Optional[Dict[str, float]]:
+    if returns.size == 0:
+        return None
+    try:
+        from jumpdiff import jump_amplitude, jump_rate, moments
+
+        bins = np.array([max(10, min(120, returns.size * 2))])
+        _, mom = moments(
+            returns.reshape(-1, 1),
+            bw=0.1,
+            bins=bins,
+            power=4,
+            lag=[1],
+            correction=False,
+            norm=False,
+            verbose=False,
+        )
+        xi = jump_amplitude(moments=mom, verbose=False)
+        lam = jump_rate(moments=mom, xi_est=xi, verbose=False)
+        return {"jump_amplitude": float(np.nanmean(xi)), "jump_rate": float(np.nanmean(lam))}
+    except Exception as exc:  # noqa: BLE001
+        st.warning(f"jumpdiff unavailable: {exc}")
+        return None
+
+
+def apply_kalman_filter(returns: np.ndarray) -> Optional[np.ndarray]:
+    if returns.size == 0:
+        return None
+    try:
+        from pykalman import KalmanFilter
+
+        kf = KalmanFilter(
+            transition_matrices=[[1]],
+            observation_matrices=[[1]],
+            transition_covariance=[[0.001]],
+            observation_covariance=[[0.05]],
+            initial_state_mean=[0.0],
+            initial_state_covariance=[[1.0]],
+        )
+        state_means, _ = kf.filter(returns.reshape(-1, 1))
+        return state_means[:, 0]
+    except Exception as exc:  # noqa: BLE001
+        st.warning(f"Kalman filter unavailable: {exc}")
+        return None
+
+
+def detect_regimes(returns: np.ndarray, kalman_state: Optional[np.ndarray]) -> Optional[np.ndarray]:
+    if returns.size < 5:
+        return np.zeros(returns.size, dtype=int)
+    try:
+        from hmmlearn.hmm import GaussianHMM
+    except Exception as exc:  # noqa: BLE001
+        st.warning(f"hmmlearn unavailable: {exc}")
+        return None
+
+    features = returns.reshape(-1, 1)
+    if kalman_state is not None and kalman_state.shape[0] == returns.shape[0]:
+        features = np.column_stack([returns, kalman_state])
+    n_states = max(1, min(3, max(1, features.shape[0] // 5)))
+    try:
+        model = GaussianHMM(n_components=n_states, covariance_type="diag", n_iter=50, random_state=42)
+        model.fit(features)
+        return model.predict(features)
+    except Exception as exc:  # noqa: BLE001
+        st.warning(f"Regime detection skipped: {exc}")
+        return None
+
+
+def run_synthetic_pipeline(h: float, eta: float, steps: int) -> Dict[str, Any]:
+    price_path, vol_path, notes = generate_rough_series(steps, h, eta)
+    returns = np.diff(np.log(price_path + 1e-9))
+    jump_stats = compute_jump_stats(returns)
+    kalman_state = apply_kalman_filter(returns)
+    regimes = detect_regimes(returns, kalman_state)
+    return {
+        "price": price_path,
+        "vol": vol_path,
+        "returns": returns,
+        "jump_stats": jump_stats,
+        "kalman": kalman_state,
+        "regimes": regimes,
+        "notes": notes,
+    }
+
+
+def run_gmgn_analysis(token_addr: str, api_key: Optional[str], base_url: str) -> Dict[str, Any]:
+    df_price = fetch_price_series(token_addr, api_key, base_url, limit=200)
+    notes: List[str] = []
+    if df_price is None:
+        notes.append("GMGN price series not available; falling back to synthetic rough path.")
+        price_path, vol_path, notes_rb = generate_rough_series(90, h=0.12, eta=0.8)
+        notes.extend(notes_rb)
+        df_price = pd.DataFrame({"price": price_path})
+    else:
+        vol_path = None
+
+    prices = df_price["price"].astype(float).values
+    returns = np.diff(np.log(prices + 1e-9))
+    jump_stats = compute_jump_stats(returns)
+    kalman_state = apply_kalman_filter(returns)
+    regimes = detect_regimes(returns, kalman_state)
+    rough_overlay, _, overlay_notes = generate_rough_series(max(5, len(prices) - 1), h=0.1, eta=0.7)
+    notes.extend(overlay_notes)
+    return {
+        "prices": prices,
+        "index": df_price.index,
+        "returns": returns,
+        "jump_stats": jump_stats,
+        "kalman": kalman_state,
+        "regimes": regimes,
+        "rough_overlay": rough_overlay,
+        "notes": notes,
+    }
+
+
+def run_rl_simulation(prices: np.ndarray, regimes: Optional[np.ndarray], steps: int = 20) -> Dict[str, Any]:
+    rng = np.random.default_rng()
+    if prices.size < steps + 1:
+        extra_steps = steps + 1 - prices.size
+        increments = rng.normal(0, 0.01, extra_steps)
+        synthetic_tail = prices[-1] * np.cumprod(1 + increments)
+        prices = np.concatenate([prices, synthetic_tail])
+    actions_map = {0: "hold", 1: "long", 2: "short"}
+    history: List[Dict[str, Any]] = []
+    cum_pnl = 0.0
+    for t in range(steps):
+        p0 = float(prices[t])
+        p1 = float(prices[t + 1])
+        action = int(rng.integers(0, 3))
+        delta = p1 - p0
+        reward = delta if action == 1 else (-delta if action == 2 else 0.0)
+        cum_pnl += reward
+        reg = int(regimes[t]) if regimes is not None and len(regimes) > t else 0
+        history.append(
+            {
+                "t": t,
+                "price": p1,
+                "norm_price": p1 / prices[0],
+                "regime": reg,
+                "action": actions_map[action],
+                "reward": reward,
+                "cum_pnl": cum_pnl,
+            }
+        )
+    df = pd.DataFrame(history)
+    running_max = df["cum_pnl"].cummax()
+    drawdown = float((df["cum_pnl"] - running_max).min()) if not df.empty else 0.0
+    return {"df": df, "final_pnl": cum_pnl, "drawdown": drawdown}
+
+
+def render_gmgn_live_market(api_key: Optional[str], base_url: str) -> None:
+    st.header("GMGN Live Market")
+    st.caption("Explore live Solana pairs from GMGN. All calls gracefully degrade on errors.")
+
+    st.subheader("New Pairs Scanner")
+    if st.button("Fetch New Pairs"):
+        data = fetch_new_pairs(api_key, base_url)
+        pairs = (data or {}).get("data") or data
+        if pairs:
+            df_pairs = pd.DataFrame(pairs)
+            if not df_pairs.empty:
+                st.dataframe(df_pairs.head(200))
+                st.success(f"Loaded {len(df_pairs)} pairs.")
+            else:
+                st.warning("GMGN returned an empty list.")
+        else:
+            st.error("Unable to fetch new pairs.")
+    else:
+        st.info('Click "Fetch New Pairs" to query GMGN.')
+
+    st.divider()
+    st.subheader("Token Snapshot")
+    token_addr = st.text_input("Token address", key="token_snapshot_input")
+    if st.button("Fetch Token Info"):
+        if not token_addr:
+            st.warning("Enter a token address first.")
+        else:
+            data = fetch_token_info(token_addr, api_key, base_url)
+            info = (data or {}).get("data") or data
+            if info:
+                price = info.get("price") or info.get("price_usd")
+                change = info.get("price_change_24h") or info.get("change_24h")
+                liquidity = info.get("liquidity") or info.get("liq")
+                volume = info.get("volume_24h") or info.get("volume")
+                holders = info.get("holders")
+                cols = st.columns(4)
+                cols[0].metric("Price", f"{price:.6f}" if price else "N/A", f"{change:+.2%}" if change else None)
+                cols[1].metric("Liquidity", f"{liquidity:,.0f}" if liquidity else "N/A")
+                cols[2].metric("24h Volume", f"{volume:,.0f}" if volume else "N/A")
+                cols[3].metric("Holders", f"{holders:,}" if holders else "N/A")
+                with st.expander("Raw response"):
+                    st.json(info)
+            else:
+                st.error("No data returned for that token.")
+
+    st.divider()
+    st.subheader("Recent Trades")
+    trade_token = st.text_input("Token or pool address", key="trades_input")
+    trades_btn = st.button("Fetch Recent Trades")
+    if trades_btn and not trade_token:
+        st.warning("Enter a token or pool address for trades.")
+    if trades_btn and trade_token:
+        data = fetch_recent_trades(trade_token, api_key, base_url, limit=120)
+        trades = (data or {}).get("data") or data
+        if trades:
+            df_trades = pd.DataFrame(trades)
+            if not df_trades.empty:
+                candidates = [c for c in ["side", "price", "amount", "amount_usd", "usd_amount", "ts", "timestamp"] if c in df_trades.columns]
+                if candidates:
+                    st.dataframe(df_trades[candidates].head(200))
+                else:
+                    st.dataframe(df_trades.head(200))
+                amount_col = next((c for c in ["amount_usd", "usd_amount", "amount"] if c in df_trades.columns), None)
+                if amount_col:
+                    st.bar_chart(df_trades[amount_col].head(60))
+            else:
+                st.warning("GMGN returned no trades.")
+        else:
+            st.error("Trade fetch failed.")
+
+
+def render_quant_pipeline() -> None:
+    st.header("Quant Pipeline (Synthetic)")
+    st.write("Simulate a rough volatility path, add jump diffusion stats, smooth with a Kalman filter, and detect regimes with HMM.")
+    col_h, col_eta, col_steps = st.columns(3)
+    h = col_h.slider("H (roughness)", 0.01, 0.5, 0.12, 0.01)
+    eta = col_eta.slider("eta (vol-of-vol)", 0.1, 3.0, 0.8, 0.05)
+    steps = col_steps.slider("Steps", 32, 256, 96, 8)
+    if st.button("Run Synthetic Pipeline"):
+        result = run_synthetic_pipeline(h, eta, steps)
+        price_path = result["price"]
+        vol_path = result["vol"]
+        returns = result["returns"]
+        regimes = result["regimes"]
+        kalman = result["kalman"]
+        jump_stats = result["jump_stats"]
+
+        df_price = pd.DataFrame({"Price": price_path, "Vol": vol_path})
+        st.line_chart(df_price)
+
+        if regimes is not None:
+            st.bar_chart(pd.DataFrame({"Regime": regimes}))
+        if kalman is not None:
+            st.line_chart(pd.DataFrame({"Kalman state": kalman}))
+        if jump_stats:
+            st.write("Jump estimates", jump_stats)
+        if result["notes"]:
+            for note in result["notes"]:
+                st.warning(note)
+        st.success("Synthetic pipeline finished.")
+
+
+def render_gmgn_overlay(api_key: Optional[str], base_url: str) -> None:
+    st.header("GMGN + Quant Overlay")
+    token_addr = st.text_input("Token address for overlay", key="overlay_input")
+    if st.button("Fetch + Analyze"):
+        if not token_addr:
+            st.warning("Please enter a token address.")
+            return
+        result = run_gmgn_analysis(token_addr, api_key, base_url)
+        prices = result["prices"]
+        index = result["index"]
+        regimes = result["regimes"]
+        kalman = result["kalman"]
+        jump_stats = result["jump_stats"]
+        overlay = result["rough_overlay"]
+        notes = result["notes"]
+
+        df_price = pd.DataFrame({"price": prices}, index=index if len(index) == len(prices) else None)
+        df_price["rough_overlay"] = overlay[: len(df_price)]
+        st.line_chart(df_price)
+
+        if kalman is not None:
+            st.line_chart(pd.DataFrame({"Raw returns": result["returns"], "Kalman": kalman}))
+        if regimes is not None:
+            st.bar_chart(pd.DataFrame({"Regime": regimes}))
+        if jump_stats:
+            st.write("Jump estimates", jump_stats)
+        if notes:
+            for note in notes:
+                st.warning(note)
+        st.success("GMGN overlay analysis done.")
+
+
+def render_rl_demo(api_key: Optional[str], base_url: str) -> None:
+    st.header("RL Shitcoin Demo")
+    source = st.radio("Data source", ["Synthetic", "GMGN token"])
+    steps = st.slider("Simulation steps", 5, 30, 12, 1)
+    token_addr = None
+    if source == "GMGN token":
+        token_addr = st.text_input("GMGN token address", key="rl_token_input")
+    if st.button("Run RL Demo"):
+        if source == "Synthetic":
+            price_path, _, notes = generate_rough_series(steps + 4, h=0.15, eta=0.9)
+            if notes:
+                for note in notes:
+                    st.warning(note)
+            regimes = detect_regimes(np.diff(np.log(price_path + 1e-9)), None)
+            sim = run_rl_simulation(price_path, regimes, steps=steps)
+        else:
+            if not token_addr:
+                st.warning("Enter a token address to fetch GMGN data.")
+                return
+            gmgn_data = run_gmgn_analysis(token_addr, api_key, base_url)
+            prices = gmgn_data["prices"]
+            if prices.size < 2:
+                st.error("Not enough GMGN prices to run the demo.")
+                return
+            sim = run_rl_simulation(prices, gmgn_data["regimes"], steps=steps)
+        df = sim["df"]
+        st.dataframe(df)
+        st.line_chart(df.set_index("t")[["cum_pnl"]])
+        st.success(f"Final PnL: {sim['final_pnl']:.4f} | Drawdown: {sim['drawdown']:.4f}")
+
+
+def main() -> None:
+    st.set_page_config(page_title="GMGN + POLYO Playground", layout="wide")
+    st.title("GMGN + POLYO Quant Playground")
+    st.write("Live GMGN market hooks combined with rough volatility, jump diffusion, Kalman smoothing, HMM regimes, and a tiny RL loop.")
+
+    api_key = st.sidebar.text_input("GMGN API key (x-route-key)", type="password")
+    base_url = st.sidebar.text_input("GMGN base URL", value=DEFAULT_BASE_URL)
+    st.sidebar.caption("Calls are cached when no API key is provided. Supply your key to use authenticated rate limits.")
+
+    tab1, tab2, tab3, tab4 = st.tabs(
+        [
+            "GMGN Live Market",
+            "Quant Pipeline (Synthetic)",
+            "GMGN + Quant Overlay",
+            "RL Shitcoin Demo",
+        ]
+    )
+
+    with tab1:
+        render_gmgn_live_market(api_key, base_url)
+    with tab2:
+        render_quant_pipeline()
+    with tab3:
+        render_gmgn_overlay(api_key, base_url)
+    with tab4:
+        render_rl_demo(api_key, base_url)
+
+
+if __name__ == "__main__":
+    main()
