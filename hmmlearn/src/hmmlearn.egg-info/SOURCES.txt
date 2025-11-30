@@ -1,5 +1,4 @@
 .codecov.yml
-.gitignore
 .readthedocs.yaml
 AUTHORS.rst
 CHANGES.rst
@@ -7,8 +6,6 @@ LICENSE.txt
 README.rst
 pyproject.toml
 setup.py
-.github/ISSUE_TEMPLATE.md
-.github/workflows/build.yml
 doc/.gitignore
 doc/Makefile
 doc/make.bat
@@ -30,6 +27,7 @@ ext/_hmmc.cpp
 scripts/benchmark.py
 src/hmmlearn/__init__.py
 src/hmmlearn/_emissions.py
+src/hmmlearn/_hmmc.cp310-win_amd64.pyd
 src/hmmlearn/_kl_divergence.py
 src/hmmlearn/_utils.py
 src/hmmlearn/base.py
@@ -42,6 +40,14 @@ src/hmmlearn.egg-info/SOURCES.txt
 src/hmmlearn.egg-info/dependency_links.txt
 src/hmmlearn.egg-info/requires.txt
 src/hmmlearn.egg-info/top_level.txt
+src/hmmlearn/__pycache__/__init__.cpython-310.pyc
+src/hmmlearn/__pycache__/_emissions.cpython-310.pyc
+src/hmmlearn/__pycache__/_kl_divergence.cpython-310.pyc
+src/hmmlearn/__pycache__/_utils.cpython-310.pyc
+src/hmmlearn/__pycache__/base.cpython-310.pyc
+src/hmmlearn/__pycache__/hmm.cpython-310.pyc
+src/hmmlearn/__pycache__/stats.cpython-310.pyc
+src/hmmlearn/__pycache__/utils.cpython-310.pyc
 src/hmmlearn/tests/__init__.py
 src/hmmlearn/tests/conftest.py
 src/hmmlearn/tests/test_base.py

@@ -3,6 +3,18 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $env:PYTHONUTF8 = "1"
 
+function Invoke-CmdChecked {
+    param(
+        [Parameter(Mandatory=$true)][string]$Exe,
+        [Parameter()][string[]]$Args = @(),
+        [int[]]$AllowedExitCodes = @(0)
+    )
+    & $Exe @Args
+    if ($LASTEXITCODE -notin $AllowedExitCodes) {
+        throw "'$Exe $($Args -join ' ')' failed with exit code $LASTEXITCODE"
+    }
+}
+
 function Require-Command {
     param([string]$Name)
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
@@ -28,12 +40,15 @@ Invoke-Expression $condaHook
 # Create or update environment
 $envName = "polyo-gpu"
 $existing = conda env list | Select-String "^\s*$envName\s"
+$condaPkgs = @("python=3.10","numpy","scipy","pandas","numba","matplotlib","seaborn","scikit-learn","cython","pip","cmake","ninja","make","pybind11")
 if ($existing) {
-    Write-Host "Environment '$envName' already exists. Updating with environment.yml..."
-    conda env update -n $envName -f $envFile --prune
+    Write-Host "Environment '$envName' already exists. Installing/updating core conda packages..."
+    $condaArgs = @("install","-n",$envName,"-y") + $condaPkgs
+    Invoke-CmdChecked "conda" $condaArgs
 } else {
-    Write-Host "Creating environment '$envName' from environment.yml..."
-    conda env create -f $envFile
+    Write-Host "Creating environment '$envName' with core conda packages..."
+    $condaArgs = @("create","-n",$envName,"-y") + $condaPkgs
+    Invoke-CmdChecked "conda" $condaArgs
 }
 
 conda activate $envName
@@ -51,15 +66,14 @@ if ($env:PYTHONPATH) {
 # Ensure streamlit is available (used by app_gmgn_polyo.py)
 Invoke-CmdChecked "conda" @("install","-n",$envName,"-c","conda-forge","streamlit","-y")
 
-function Invoke-CmdChecked {
-    param(
-        [Parameter(Mandatory=$true)][string]$Exe,
-        [Parameter()][string[]]$Args = @()
-    )
-    & $Exe @Args
-    if ($LASTEXITCODE -ne 0) {
-        throw "'$Exe $($Args -join ' ')' failed with exit code $LASTEXITCODE"
-    }
+# Repair certifi metadata if broken (pip errors about METADATA path)
+Invoke-CmdChecked "python" @("-m","pip","install","--force-reinstall","certifi")
+
+# Reinstall pip dependencies listed in environment.yml (pip section)
+$pipPkgs = @("gymnasium","tensorboard","pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly")
+$pipBase = @("-m","pip","install","--upgrade","--no-build-isolation","--progress-bar","off")
+foreach ($pkg in $pipPkgs) {
+    Invoke-CmdChecked "python" ($pipBase + $pkg) -AllowedExitCodes @(0,120)
 }
 
 # GPU detection
@@ -127,8 +141,13 @@ function Install-Editable {
         Write-Warning "Skipping $Path (no setup.py or pyproject.toml found)."
         return
     }
-    Write-Host "pip install -e $Path"
-    Invoke-CmdChecked "pip" @("install","-e",$Path)
+    Write-Host "python -m pip install -e $Path (no-build-isolation)"
+    Push-Location $Path
+    try {
+        Invoke-CmdChecked "python" @("-m","pip","install","-e",".","--no-build-isolation")
+    } finally {
+        Pop-Location
+    }
 }
 
 Install-Editable "./rough_bergomi"

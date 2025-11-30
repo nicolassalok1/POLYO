@@ -22,12 +22,48 @@ if ($keyLen -eq 0) {
     Write-Host "Cle detectee, l'app tentera le mode LIVE (GMGN API)."
 }
 
-$condaCmd = Get-Command conda -ErrorAction SilentlyContinue
-if ($condaCmd) {
-    Write-Host "Execution via conda run dans l'env '$EnvName' avec python -m streamlit..."
-    conda run -n $EnvName python -m streamlit run app_gmgn_polyo.py
+$gpuAvailable = $false
+if (Get-Command nvidia-smi -ErrorAction SilentlyContinue) {
+    try {
+        nvidia-smi > $null 2>&1
+        if ($LASTEXITCODE -eq 0) { $gpuAvailable = $true }
+    } catch { $gpuAvailable = $false }
+}
+if (-not $gpuAvailable) {
+    Write-Warning "GPU/CUDA non detecte (nvidia-smi absent). L'app fonctionnera en mode CPU. Installe les pilotes NVIDIA + CUDA Toolkit si tu souhaites l'acceleration GPU."
 } else {
-    Write-Warning "conda introuvable dans cette session; essaie d'activer l'env '$EnvName' manuellement puis relance."
+    Write-Host "GPU/CUDA detecte via nvidia-smi."
+}
+
+$condaCmd = Get-Command conda -ErrorAction SilentlyContinue
+if (-not $condaCmd) {
+    Write-Warning "conda introuvable; active l'env '$EnvName' manuellement et installe streamlit si besoin."
     Write-Host "Tentative d'executer streamlit directement..."
     streamlit run app_gmgn_polyo.py
+    exit 0
 }
+
+$envExists = conda env list | Select-String "^\s*$EnvName\s"
+if (-not $envExists) {
+    Write-Warning "L'environnement '$EnvName' est introuvable. Lancement de setup.ps1 pour le creer..."
+    $setupPath = Join-Path $PSScriptRoot "setup.ps1"
+    & $setupPath
+}
+
+Write-Host "Verification de streamlit dans l'env '$EnvName'..."
+conda run -n $EnvName python - <<'PY'
+import importlib, sys
+try:
+    importlib.import_module("streamlit")
+    print("streamlit ok")
+except Exception as exc:
+    print(f"missing_streamlit::{exc}")
+    sys.exit(1)
+PY
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Installation de streamlit dans '$EnvName'..."
+    conda install -n $EnvName -c conda-forge streamlit -y
+}
+
+Write-Host "Execution via conda run dans l'env '$EnvName' avec python -m streamlit..."
+conda run -n $EnvName python -m streamlit run app_gmgn_polyo.py

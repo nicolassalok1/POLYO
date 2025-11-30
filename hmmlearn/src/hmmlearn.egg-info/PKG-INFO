@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: hmmlearn
-Version: 0.post481+unknown.ge01a10e99
+Version: 0+unknown
 Summary: Hidden Markov Models in Python with scikit-learn like API
 Author: David Cournapeau, Fabian Pedregosa, Gael Varoquaux, Sergei Lebedev, Antony Lee, Matthew Danielson
 Project-URL: Repository, https://github.com/hmmlearn/hmmlearn
