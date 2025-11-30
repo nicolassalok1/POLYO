@@ -1832,3 +1832,866 @@ events:
         
       exitCode: -1
 ...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/"
+    found: "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64"
+        - "C:\\Program Files\\PowerShell\\7"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX86\\x86"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\VC\\VCPackages"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\bin\\Roslyn"
+        - "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.8 Tools"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Team Tools\\DiagnosticsHub\\Collector"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\Extensions\\Microsoft\\CodeCoverage.Console"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x86"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x86"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\amd64"
+        - "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\mingw-w64\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\usr\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Scripts"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\bin"
+        - "D:\\Programmes\\Miniconda3\\condabin"
+        - "C:\\msys64\\mingw64\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.2\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.2\\libnvvp"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.9\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.9\\libnvvp"
+        - "C:\\Program Files\\Microsoft\\jdk-17.0.12.7-hotspot\\bin"
+        - "C:\\Python312\\Scripts"
+        - "C:\\Python312"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0"
+        - "C:\\WINDOWS\\System32\\OpenSSH"
+        - "C:\\Program Files\\nodejs"
+        - "C:\\ProgramData\\chocolatey\\bin"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA app\\NvDLISR"
+        - "C:\\Program Files\\doxygen\\bin"
+        - "C:\\Program Files\\dotnet"
+        - "C:\\Program Files\\Bazel"
+        - "C:\\msys64\\usr\\bin"
+        - "D:\\Programmes\\Docker\\resources\\bin"
+        - "d:\\Programmes\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files\\PowerShell\\7"
+        - "C:\\Program Files\\NVIDIA Corporation\\Nsight Compute 2020.3.0"
+        - "C:\\Users\\nicol\\scoop\\shims"
+        - "C:\\Users\\nicol\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\nicol\\AppData\\Roaming\\npm"
+        - "C:\\Users\\nicol\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Program Files\\JetBrains\\PyCharm 2024.3.4\\bin"
+        - "."
+        - "C:\\Program Files\\JetBrains\\CLion 2024.3.5\\bin"
+        - "."
+        - "C:\\MinGW\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\libnvvp"
+        - "C:\\Users\\nicol\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\VC\\Linux\\bin\\ConnectionManagerExe"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\vcpkg"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/lob"
+      ENV{INCLUDE}:
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\um"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\shared"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\winrt"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\cppwinrt"
+        - "C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.8\\include\\um"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe 
+      Build flags: /DWIN32;/D_WINDOWS;/EHsc
+      Id flags:  
+      
+      The output was:
+      2
+      Compilateur d'optimisation Microsoft (R) C/C++ version 19.44.35221 pour x64
+      Copyright (C) Microsoft Corporation. Tous droits réservés.
+      
+      CMakeCXXCompilerId.cpp
+      Microsoft (R) Incremental Linker Version 14.44.35221.0
+      Copyright (C) Microsoft Corporation.  All rights reserved.
+      
+      /out:CMakeCXXCompilerId.exe 
+      CMakeCXXCompilerId.obj 
+      LINK : error LNK2001: symbole externe non résolu mainCRTStartup
+      C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x86\\LIBCMT.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'
+      CMakeCXXCompilerId.exe : fatal error LNK1120: 1 externes non résolus
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/"
+    found: "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64"
+        - "C:\\Program Files\\PowerShell\\7"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX86\\x86"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\VC\\VCPackages"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\bin\\Roslyn"
+        - "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.8 Tools"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Team Tools\\DiagnosticsHub\\Collector"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\Extensions\\Microsoft\\CodeCoverage.Console"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x86"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x86"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\amd64"
+        - "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\mingw-w64\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\usr\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Scripts"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\bin"
+        - "D:\\Programmes\\Miniconda3\\condabin"
+        - "C:\\msys64\\mingw64\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.2\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.2\\libnvvp"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.9\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.9\\libnvvp"
+        - "C:\\Program Files\\Microsoft\\jdk-17.0.12.7-hotspot\\bin"
+        - "C:\\Python312\\Scripts"
+        - "C:\\Python312"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0"
+        - "C:\\WINDOWS\\System32\\OpenSSH"
+        - "C:\\Program Files\\nodejs"
+        - "C:\\ProgramData\\chocolatey\\bin"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA app\\NvDLISR"
+        - "C:\\Program Files\\doxygen\\bin"
+        - "C:\\Program Files\\dotnet"
+        - "C:\\Program Files\\Bazel"
+        - "C:\\msys64\\usr\\bin"
+        - "D:\\Programmes\\Docker\\resources\\bin"
+        - "d:\\Programmes\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files\\PowerShell\\7"
+        - "C:\\Program Files\\NVIDIA Corporation\\Nsight Compute 2020.3.0"
+        - "C:\\Users\\nicol\\scoop\\shims"
+        - "C:\\Users\\nicol\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\nicol\\AppData\\Roaming\\npm"
+        - "C:\\Users\\nicol\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Program Files\\JetBrains\\PyCharm 2024.3.4\\bin"
+        - "."
+        - "C:\\Program Files\\JetBrains\\CLion 2024.3.5\\bin"
+        - "."
+        - "C:\\MinGW\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\libnvvp"
+        - "C:\\Users\\nicol\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\VC\\Linux\\bin\\ConnectionManagerExe"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\vcpkg"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/lob"
+      ENV{INCLUDE}:
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\um"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\shared"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\winrt"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\cppwinrt"
+        - "C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.8\\include\\um"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe 
+      Build flags: /DWIN32;/D_WINDOWS;/EHsc
+      Id flags: -c 
+      
+      The output was:
+      0
+      Compilateur d'optimisation Microsoft (R) C/C++ version 19.44.35221 pour x64
+      Copyright (C) Microsoft Corporation. Tous droits réservés.
+      
+      CMakeCXXCompilerId.cpp
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.obj"
+      
+      The CXX compiler identification is MSVC, found in:
+        D:/PythonDProjects/POLYO/limit-order-book/cpp/build/CMakeFiles/4.2.0/CompilerIdCXX/CMakeCXXCompilerId.obj
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:1341 (message)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:250 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Detecting CXX compiler /showIncludes prefix:
+        main.c
+        Remarque : inclusion du fichier :  D:\\PythonDProjects\\POLYO\\limit-order-book\\cpp\\build\\CMakeFiles\\ShowIncludes\\foo.h
+        
+      Found prefix "Remarque : inclusion du fichier :  "
+  -
+    kind: "find-v1"
+    backtrace:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:37 (find_program)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:65 (__resolve_tool_path)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:103 (__resolve_linker_path)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "_CMAKE_TOOL_WITH_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "link"
+    candidate_directories:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/"
+      - "C:/Program Files/PowerShell/7/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx86/x86/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/VC/vcpackages/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/Roslyn/"
+      - "C:/Program Files (x86)/Microsoft SDKs/Windows/v10.0A/bin/NETFX 4.8 Tools/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Team Tools/DiagnosticsHub/Collector/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/Extensions/Microsoft/CodeCoverage.Console/"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x86/"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/x86/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/"
+      - "C:/Windows/Microsoft.NET/Framework/v4.0.30319/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/Tools/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/mingw-w64/bin/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/usr/bin/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/bin/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Scripts/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/bin/"
+      - "D:/Programmes/Miniconda3/condabin/"
+      - "C:/msys64/mingw64/bin/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/bin/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/libnvvp/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/bin/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/libnvvp/"
+      - "C:/Program Files/Microsoft/jdk-17.0.12.7-hotspot/bin/"
+      - "C:/Python312/Scripts/"
+      - "C:/Python312/"
+      - "C:/Windows/System32/"
+      - "C:/Windows/"
+      - "C:/Windows/System32/wbem/"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/"
+      - "C:/Windows/System32/OpenSSH/"
+      - "C:/Program Files/nodejs/"
+      - "C:/ProgramData/chocolatey/bin/"
+      - "C:/Program Files/Git/cmd/"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "C:/Program Files/doxygen/bin/"
+      - "C:/Program Files/dotnet/"
+      - "C:/Program Files/Bazel/"
+      - "C:/msys64/usr/bin/"
+      - "D:/Programmes/Docker/resources/bin/"
+      - "D:/Programmes/cursor/resources/app/bin/"
+      - "C:/Program Files/NVIDIA Corporation/Nsight Compute 2020.3.0/"
+      - "C:/Users/nicol/scoop/shims/"
+      - "C:/Users/nicol/AppData/Local/Microsoft/WindowsApps/"
+      - "C:/Users/nicol/AppData/Roaming/npm/"
+      - "C:/Users/nicol/AppData/Local/GitHubDesktop/bin/"
+      - "C:/Program Files/JetBrains/PyCharm 2024.3.4/bin/"
+      - "D:/PythonDProjects/POLYO/limit-order-book/cpp/build/"
+      - "C:/Program Files/JetBrains/CLion 2024.3.5/bin/"
+      - "C:/MinGW/bin/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5/bin/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5/libnvvp/"
+      - "C:/Users/nicol/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/VC/Linux/bin/ConnectionManagerExe/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/vcpkg/"
+    searched_directories:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/link.com"
+    found: "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/link.exe"
+    search_context:
+      ENV{PATH}:
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64"
+        - "C:\\Program Files\\PowerShell\\7"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX86\\x86"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\VC\\VCPackages"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\bin\\Roslyn"
+        - "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.8 Tools"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Team Tools\\DiagnosticsHub\\Collector"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\Extensions\\Microsoft\\CodeCoverage.Console"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x86"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x86"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\amd64"
+        - "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\mingw-w64\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\usr\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Scripts"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\bin"
+        - "D:\\Programmes\\Miniconda3\\condabin"
+        - "C:\\msys64\\mingw64\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.2\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.2\\libnvvp"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.9\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.9\\libnvvp"
+        - "C:\\Program Files\\Microsoft\\jdk-17.0.12.7-hotspot\\bin"
+        - "C:\\Python312\\Scripts"
+        - "C:\\Python312"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0"
+        - "C:\\WINDOWS\\System32\\OpenSSH"
+        - "C:\\Program Files\\nodejs"
+        - "C:\\ProgramData\\chocolatey\\bin"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA app\\NvDLISR"
+        - "C:\\Program Files\\doxygen\\bin"
+        - "C:\\Program Files\\dotnet"
+        - "C:\\Program Files\\Bazel"
+        - "C:\\msys64\\usr\\bin"
+        - "D:\\Programmes\\Docker\\resources\\bin"
+        - "d:\\Programmes\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files\\PowerShell\\7"
+        - "C:\\Program Files\\NVIDIA Corporation\\Nsight Compute 2020.3.0"
+        - "C:\\Users\\nicol\\scoop\\shims"
+        - "C:\\Users\\nicol\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\nicol\\AppData\\Roaming\\npm"
+        - "C:\\Users\\nicol\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Program Files\\JetBrains\\PyCharm 2024.3.4\\bin"
+        - "."
+        - "C:\\Program Files\\JetBrains\\CLion 2024.3.5\\bin"
+        - "."
+        - "C:\\MinGW\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\libnvvp"
+        - "C:\\Users\\nicol\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\VC\\Linux\\bin\\ConnectionManagerExe"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\vcpkg"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/lob"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:37 (find_program)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:65 (__resolve_tool_path)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:104 (__resolve_linker_path)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "_CMAKE_TOOL_WITH_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "lld-link"
+    candidate_directories:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/"
+      - "C:/Program Files/PowerShell/7/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx86/x86/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/VC/vcpackages/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/Roslyn/"
+      - "C:/Program Files (x86)/Microsoft SDKs/Windows/v10.0A/bin/NETFX 4.8 Tools/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Team Tools/DiagnosticsHub/Collector/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/Extensions/Microsoft/CodeCoverage.Console/"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x86/"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/x86/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/"
+      - "C:/Windows/Microsoft.NET/Framework/v4.0.30319/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/Tools/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/mingw-w64/bin/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/usr/bin/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/bin/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Scripts/"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/bin/"
+      - "D:/Programmes/Miniconda3/condabin/"
+      - "C:/msys64/mingw64/bin/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/bin/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/libnvvp/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/bin/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/libnvvp/"
+      - "C:/Program Files/Microsoft/jdk-17.0.12.7-hotspot/bin/"
+      - "C:/Python312/Scripts/"
+      - "C:/Python312/"
+      - "C:/Windows/System32/"
+      - "C:/Windows/"
+      - "C:/Windows/System32/wbem/"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/"
+      - "C:/Windows/System32/OpenSSH/"
+      - "C:/Program Files/nodejs/"
+      - "C:/ProgramData/chocolatey/bin/"
+      - "C:/Program Files/Git/cmd/"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "C:/Program Files/doxygen/bin/"
+      - "C:/Program Files/dotnet/"
+      - "C:/Program Files/Bazel/"
+      - "C:/msys64/usr/bin/"
+      - "D:/Programmes/Docker/resources/bin/"
+      - "D:/Programmes/cursor/resources/app/bin/"
+      - "C:/Program Files/NVIDIA Corporation/Nsight Compute 2020.3.0/"
+      - "C:/Users/nicol/scoop/shims/"
+      - "C:/Users/nicol/AppData/Local/Microsoft/WindowsApps/"
+      - "C:/Users/nicol/AppData/Roaming/npm/"
+      - "C:/Users/nicol/AppData/Local/GitHubDesktop/bin/"
+      - "C:/Program Files/JetBrains/PyCharm 2024.3.4/bin/"
+      - "D:/PythonDProjects/POLYO/limit-order-book/cpp/build/"
+      - "C:/Program Files/JetBrains/CLion 2024.3.5/bin/"
+      - "C:/MinGW/bin/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5/bin/"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5/libnvvp/"
+      - "C:/Users/nicol/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/VC/Linux/bin/ConnectionManagerExe/"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/vcpkg/"
+    searched_directories:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/lld-link"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/lld-link.com"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/lld-link.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/lld-link"
+      - "C:/Program Files/PowerShell/7/lld-link.com"
+      - "C:/Program Files/PowerShell/7/lld-link.exe"
+      - "C:/Program Files/PowerShell/7/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx86/x86/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx86/x86/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx86/x86/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/VC/vcpackages/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/VC/vcpackages/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/VC/vcpackages/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/TestWindow/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/Roslyn/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/Roslyn/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/Roslyn/lld-link"
+      - "C:/Program Files (x86)/Microsoft SDKs/Windows/v10.0A/bin/NETFX 4.8 Tools/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft SDKs/Windows/v10.0A/bin/NETFX 4.8 Tools/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft SDKs/Windows/v10.0A/bin/NETFX 4.8 Tools/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Team Tools/DiagnosticsHub/Collector/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Team Tools/DiagnosticsHub/Collector/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Team Tools/DiagnosticsHub/Collector/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/Extensions/Microsoft/CodeCoverage.Console/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/Extensions/Microsoft/CodeCoverage.Console/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/Extensions/Microsoft/CodeCoverage.Console/lld-link"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x86/lld-link.com"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x86/lld-link.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x86/lld-link"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/x86/lld-link.com"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/x86/lld-link.exe"
+      - "C:/Program Files (x86)/Windows Kits/10/bin/x86/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/lld-link"
+      - "C:/Windows/Microsoft.NET/Framework/v4.0.30319/lld-link.com"
+      - "C:/Windows/Microsoft.NET/Framework/v4.0.30319/lld-link.exe"
+      - "C:/Windows/Microsoft.NET/Framework/v4.0.30319/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/Tools/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/Tools/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/Tools/lld-link"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/lld-link.com"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/lld-link.exe"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/lld-link"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/mingw-w64/bin/lld-link.com"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/mingw-w64/bin/lld-link.exe"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/mingw-w64/bin/lld-link"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/usr/bin/lld-link.com"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/usr/bin/lld-link.exe"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/usr/bin/lld-link"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/bin/lld-link.com"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/bin/lld-link.exe"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/bin/lld-link"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Scripts/lld-link.com"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Scripts/lld-link.exe"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Scripts/lld-link"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/bin/lld-link.com"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/bin/lld-link.exe"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/bin/lld-link"
+      - "D:/Programmes/Miniconda3/condabin/lld-link.com"
+      - "D:/Programmes/Miniconda3/condabin/lld-link.exe"
+      - "D:/Programmes/Miniconda3/condabin/lld-link"
+      - "C:/msys64/mingw64/bin/lld-link.com"
+      - "C:/msys64/mingw64/bin/lld-link.exe"
+      - "C:/msys64/mingw64/bin/lld-link"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/bin/lld-link.com"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/bin/lld-link.exe"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/bin/lld-link"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/libnvvp/lld-link.com"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/libnvvp/lld-link.exe"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.2/libnvvp/lld-link"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/bin/lld-link.com"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/bin/lld-link.exe"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/bin/lld-link"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/libnvvp/lld-link.com"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/libnvvp/lld-link.exe"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/libnvvp/lld-link"
+      - "C:/Program Files/Microsoft/jdk-17.0.12.7-hotspot/bin/lld-link.com"
+      - "C:/Program Files/Microsoft/jdk-17.0.12.7-hotspot/bin/lld-link.exe"
+      - "C:/Program Files/Microsoft/jdk-17.0.12.7-hotspot/bin/lld-link"
+      - "C:/Python312/Scripts/lld-link.com"
+      - "C:/Python312/Scripts/lld-link.exe"
+      - "C:/Python312/Scripts/lld-link"
+      - "C:/Python312/lld-link.com"
+      - "C:/Python312/lld-link.exe"
+      - "C:/Python312/lld-link"
+      - "C:/Windows/System32/lld-link.com"
+      - "C:/Windows/System32/lld-link.exe"
+      - "C:/Windows/System32/lld-link"
+      - "C:/Windows/lld-link.com"
+      - "C:/Windows/lld-link.exe"
+      - "C:/Windows/lld-link"
+      - "C:/Windows/System32/wbem/lld-link.com"
+      - "C:/Windows/System32/wbem/lld-link.exe"
+      - "C:/Windows/System32/wbem/lld-link"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/lld-link.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/lld-link.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/lld-link"
+      - "C:/Windows/System32/OpenSSH/lld-link.com"
+      - "C:/Windows/System32/OpenSSH/lld-link.exe"
+      - "C:/Windows/System32/OpenSSH/lld-link"
+      - "C:/Program Files/nodejs/lld-link.com"
+      - "C:/Program Files/nodejs/lld-link.exe"
+      - "C:/Program Files/nodejs/lld-link"
+      - "C:/ProgramData/chocolatey/bin/lld-link.com"
+      - "C:/ProgramData/chocolatey/bin/lld-link.exe"
+      - "C:/ProgramData/chocolatey/bin/lld-link"
+      - "C:/Program Files/Git/cmd/lld-link.com"
+      - "C:/Program Files/Git/cmd/lld-link.exe"
+      - "C:/Program Files/Git/cmd/lld-link"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/lld-link.com"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/lld-link.exe"
+      - "C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common/lld-link"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/lld-link.com"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/lld-link.exe"
+      - "C:/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/lld-link"
+      - "C:/Program Files/doxygen/bin/lld-link.com"
+      - "C:/Program Files/doxygen/bin/lld-link.exe"
+      - "C:/Program Files/doxygen/bin/lld-link"
+      - "C:/Program Files/dotnet/lld-link.com"
+      - "C:/Program Files/dotnet/lld-link.exe"
+      - "C:/Program Files/dotnet/lld-link"
+      - "C:/Program Files/Bazel/lld-link.com"
+      - "C:/Program Files/Bazel/lld-link.exe"
+      - "C:/Program Files/Bazel/lld-link"
+      - "C:/msys64/usr/bin/lld-link.com"
+      - "C:/msys64/usr/bin/lld-link.exe"
+      - "C:/msys64/usr/bin/lld-link"
+      - "D:/Programmes/Docker/resources/bin/lld-link.com"
+      - "D:/Programmes/Docker/resources/bin/lld-link.exe"
+      - "D:/Programmes/Docker/resources/bin/lld-link"
+      - "D:/Programmes/cursor/resources/app/bin/lld-link.com"
+      - "D:/Programmes/cursor/resources/app/bin/lld-link.exe"
+      - "D:/Programmes/cursor/resources/app/bin/lld-link"
+      - "C:/Program Files/NVIDIA Corporation/Nsight Compute 2020.3.0/lld-link.com"
+      - "C:/Program Files/NVIDIA Corporation/Nsight Compute 2020.3.0/lld-link.exe"
+      - "C:/Program Files/NVIDIA Corporation/Nsight Compute 2020.3.0/lld-link"
+      - "C:/Users/nicol/scoop/shims/lld-link.com"
+      - "C:/Users/nicol/scoop/shims/lld-link.exe"
+      - "C:/Users/nicol/scoop/shims/lld-link"
+      - "C:/Users/nicol/AppData/Local/Microsoft/WindowsApps/lld-link.com"
+      - "C:/Users/nicol/AppData/Local/Microsoft/WindowsApps/lld-link.exe"
+      - "C:/Users/nicol/AppData/Local/Microsoft/WindowsApps/lld-link"
+      - "C:/Users/nicol/AppData/Roaming/npm/lld-link.com"
+      - "C:/Users/nicol/AppData/Roaming/npm/lld-link.exe"
+      - "C:/Users/nicol/AppData/Roaming/npm/lld-link"
+      - "C:/Users/nicol/AppData/Local/GitHubDesktop/bin/lld-link.com"
+      - "C:/Users/nicol/AppData/Local/GitHubDesktop/bin/lld-link.exe"
+      - "C:/Users/nicol/AppData/Local/GitHubDesktop/bin/lld-link"
+      - "C:/Program Files/JetBrains/PyCharm 2024.3.4/bin/lld-link.com"
+      - "C:/Program Files/JetBrains/PyCharm 2024.3.4/bin/lld-link.exe"
+      - "C:/Program Files/JetBrains/PyCharm 2024.3.4/bin/lld-link"
+      - "D:/PythonDProjects/POLYO/limit-order-book/cpp/build/lld-link.com"
+      - "D:/PythonDProjects/POLYO/limit-order-book/cpp/build/lld-link.exe"
+      - "D:/PythonDProjects/POLYO/limit-order-book/cpp/build/lld-link"
+      - "C:/Program Files/JetBrains/CLion 2024.3.5/bin/lld-link.com"
+      - "C:/Program Files/JetBrains/CLion 2024.3.5/bin/lld-link.exe"
+      - "C:/Program Files/JetBrains/CLion 2024.3.5/bin/lld-link"
+      - "C:/MinGW/bin/lld-link.com"
+      - "C:/MinGW/bin/lld-link.exe"
+      - "C:/MinGW/bin/lld-link"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5/bin/lld-link.com"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5/bin/lld-link.exe"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5/bin/lld-link"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5/libnvvp/lld-link.com"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5/libnvvp/lld-link.exe"
+      - "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5/libnvvp/lld-link"
+      - "C:/Users/nicol/AppData/Local/Programs/Microsoft VS Code/bin/lld-link.com"
+      - "C:/Users/nicol/AppData/Local/Programs/Microsoft VS Code/bin/lld-link.exe"
+      - "C:/Users/nicol/AppData/Local/Programs/Microsoft VS Code/bin/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/VC/Linux/bin/ConnectionManagerExe/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/VC/Linux/bin/ConnectionManagerExe/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/VC/Linux/bin/ConnectionManagerExe/lld-link"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/vcpkg/lld-link.com"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/vcpkg/lld-link.exe"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/vcpkg/lld-link"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64"
+        - "C:\\Program Files\\PowerShell\\7"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX86\\x86"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\VC\\VCPackages"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\bin\\Roslyn"
+        - "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.8 Tools"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Team Tools\\DiagnosticsHub\\Collector"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\Extensions\\Microsoft\\CodeCoverage.Console"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x86"
+        - "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x86"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\amd64"
+        - "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\mingw-w64\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\usr\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\bin"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Scripts"
+        - "D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\bin"
+        - "D:\\Programmes\\Miniconda3\\condabin"
+        - "C:\\msys64\\mingw64\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.2\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.2\\libnvvp"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.9\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.9\\libnvvp"
+        - "C:\\Program Files\\Microsoft\\jdk-17.0.12.7-hotspot\\bin"
+        - "C:\\Python312\\Scripts"
+        - "C:\\Python312"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0"
+        - "C:\\WINDOWS\\System32\\OpenSSH"
+        - "C:\\Program Files\\nodejs"
+        - "C:\\ProgramData\\chocolatey\\bin"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common"
+        - "C:\\Program Files\\NVIDIA Corporation\\NVIDIA app\\NvDLISR"
+        - "C:\\Program Files\\doxygen\\bin"
+        - "C:\\Program Files\\dotnet"
+        - "C:\\Program Files\\Bazel"
+        - "C:\\msys64\\usr\\bin"
+        - "D:\\Programmes\\Docker\\resources\\bin"
+        - "d:\\Programmes\\cursor\\resources\\app\\bin"
+        - "C:\\Program Files\\PowerShell\\7"
+        - "C:\\Program Files\\NVIDIA Corporation\\Nsight Compute 2020.3.0"
+        - "C:\\Users\\nicol\\scoop\\shims"
+        - "C:\\Users\\nicol\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Users\\nicol\\AppData\\Roaming\\npm"
+        - "C:\\Users\\nicol\\AppData\\Local\\GitHubDesktop\\bin"
+        - "C:\\Program Files\\JetBrains\\PyCharm 2024.3.4\\bin"
+        - "."
+        - "C:\\Program Files\\JetBrains\\CLion 2024.3.5\\bin"
+        - "."
+        - "C:\\MinGW\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin"
+        - "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\libnvvp"
+        - "C:\\Users\\nicol\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\VC\\Linux\\bin\\ConnectionManagerExe"
+        - "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\vcpkg"
+      CMAKE_INSTALL_PREFIX: "C:/Program Files (x86)/lob"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "D:/PythonDProjects/POLYO/limit-order-book/cpp/build/CMakeFiles/CMakeScratch/TryCompile-obm0dw"
+      binary: "D:/PythonDProjects/POLYO/limit-order-book/cpp/build/CMakeFiles/CMakeScratch/TryCompile-obm0dw"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/PythonDProjects/POLYO/limit-order-book/cpp/build/CMakeFiles/CMakeScratch/TryCompile-obm0dw'
+        
+        Run Build Command(s): D:/Programmes/Miniconda3/envs/polyo-gpu/Library/bin/ninja.exe -v cmTC_ead93
+        [1/2] C:\\PROGRA~2\\MICROS~2\\2022\\BUILDT~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -D_MBCS  /DWIN32 /D_WINDOWS /EHsc  /Zi /Ob0 /Od /RTC1 -MDd /showIncludes /FoCMakeFiles\\cmTC_ead93.dir\\CMakeCXXCompilerABI.cpp.obj /FdCMakeFiles\\cmTC_ead93.dir\\ /FS -c D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\share\\cmake-4.2\\Modules\\CMakeCXXCompilerABI.cpp
+        [2/2] C:\\WINDOWS\\system32\\cmd.exe /C "cd . && D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\bin\\cmake.exe -E vs_link_exe --msvc-ver=1944 --intdir=CMakeFiles\\cmTC_ead93.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x86\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x86\\mt.exe --manifests  -- C:\\PROGRA~2\\MICROS~2\\2022\\BUILDT~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_ead93.dir\\CMakeCXXCompilerABI.cpp.obj  /out:cmTC_ead93.exe /implib:cmTC_ead93.lib /pdb:cmTC_ead93.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        FAILED: [code=4294967295] cmTC_ead93.exe 
+        C:\\WINDOWS\\system32\\cmd.exe /C "cd . && D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\bin\\cmake.exe -E vs_link_exe --msvc-ver=1944 --intdir=CMakeFiles\\cmTC_ead93.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x86\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x86\\mt.exe --manifests  -- C:\\PROGRA~2\\MICROS~2\\2022\\BUILDT~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_ead93.dir\\CMakeCXXCompilerABI.cpp.obj  /out:cmTC_ead93.exe /implib:cmTC_ead93.lib /pdb:cmTC_ead93.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        LINK Pass 1: command "C:\\PROGRA~2\\MICROS~2\\2022\\BUILDT~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_ead93.dir\\CMakeCXXCompilerABI.cpp.obj /out:cmTC_ead93.exe /implib:cmTC_ead93.lib /pdb:cmTC_ead93.pdb /version:0.0 /machine:x64 /debug /INCREMENTAL /subsystem:console kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTFILE:CMakeFiles\\cmTC_ead93.dir/intermediate.manifest CMakeFiles\\cmTC_ead93.dir/manifest.res" failed (exit code 1120) with the following output:
+        CMakeCXXCompilerABI.cpp.obj : error LNK2001: symbole externe non résolu _RTC_InitBase\x0d
+        CMakeCXXCompilerABI.cpp.obj : error LNK2001: symbole externe non résolu _RTC_Shutdown\x0d
+        LINK : error LNK2001: symbole externe non résolu mainCRTStartup\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\kernel32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\user32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\gdi32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\winspool.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\shell32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\ole32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\oleaut32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\uuid.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\comdlg32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\advapi32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x86\\MSVCRTD.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        cmTC_ead93.exe : fatal error LNK1120: 3 externes non résolus\x0d
+        ninja: build stopped: subcommand failed.
+        
+      exitCode: -1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "D:/Programmes/Miniconda3/envs/polyo-gpu/Library/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:56 (try_compile)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Check for working CXX compiler: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe"
+    directories:
+      source: "D:/PythonDProjects/POLYO/limit-order-book/cpp/build/CMakeFiles/CMakeScratch/TryCompile-5aruy2"
+      binary: "D:/PythonDProjects/POLYO/limit-order-book/cpp/build/CMakeFiles/CMakeScratch/TryCompile-5aruy2"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_COMPILER_WORKS"
+      cached: true
+      stdout: |
+        Change Dir: 'D:/PythonDProjects/POLYO/limit-order-book/cpp/build/CMakeFiles/CMakeScratch/TryCompile-5aruy2'
+        
+        Run Build Command(s): D:/Programmes/Miniconda3/envs/polyo-gpu/Library/bin/ninja.exe -v cmTC_f96f9
+        [1/2] C:\\PROGRA~2\\MICROS~2\\2022\\BUILDT~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -D_MBCS  /DWIN32 /D_WINDOWS /EHsc  /Zi /Ob0 /Od /RTC1 -MDd /showIncludes /FoCMakeFiles\\cmTC_f96f9.dir\\testCXXCompiler.cxx.obj /FdCMakeFiles\\cmTC_f96f9.dir\\ /FS -c D:\\PythonDProjects\\POLYO\\limit-order-book\\cpp\\build\\CMakeFiles\\CMakeScratch\\TryCompile-5aruy2\\testCXXCompiler.cxx
+        [2/2] C:\\WINDOWS\\system32\\cmd.exe /C "cd . && D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\bin\\cmake.exe -E vs_link_exe --msvc-ver=1944 --intdir=CMakeFiles\\cmTC_f96f9.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x86\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x86\\mt.exe --manifests  -- C:\\PROGRA~2\\MICROS~2\\2022\\BUILDT~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_f96f9.dir\\testCXXCompiler.cxx.obj  /out:cmTC_f96f9.exe /implib:cmTC_f96f9.lib /pdb:cmTC_f96f9.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        FAILED: [code=4294967295] cmTC_f96f9.exe 
+        C:\\WINDOWS\\system32\\cmd.exe /C "cd . && D:\\Programmes\\Miniconda3\\envs\\polyo-gpu\\Library\\bin\\cmake.exe -E vs_link_exe --msvc-ver=1944 --intdir=CMakeFiles\\cmTC_f96f9.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x86\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x86\\mt.exe --manifests  -- C:\\PROGRA~2\\MICROS~2\\2022\\BUILDT~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_f96f9.dir\\testCXXCompiler.cxx.obj  /out:cmTC_f96f9.exe /implib:cmTC_f96f9.lib /pdb:cmTC_f96f9.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        LINK Pass 1: command "C:\\PROGRA~2\\MICROS~2\\2022\\BUILDT~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_f96f9.dir\\testCXXCompiler.cxx.obj /out:cmTC_f96f9.exe /implib:cmTC_f96f9.lib /pdb:cmTC_f96f9.pdb /version:0.0 /machine:x64 /debug /INCREMENTAL /subsystem:console kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTFILE:CMakeFiles\\cmTC_f96f9.dir/intermediate.manifest CMakeFiles\\cmTC_f96f9.dir/manifest.res" failed (exit code 1120) with the following output:
+        testCXXCompiler.cxx.obj : error LNK2001: symbole externe non résolu _RTC_InitBase\x0d
+        testCXXCompiler.cxx.obj : error LNK2001: symbole externe non résolu _RTC_Shutdown\x0d
+        LINK : error LNK2001: symbole externe non résolu mainCRTStartup\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\kernel32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\user32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\gdi32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\winspool.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\shell32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\ole32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\oleaut32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\uuid.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\comdlg32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x86\\advapi32.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\lib\\x86\\MSVCRTD.lib : warning LNK4272: type d'ordinateur bibliothèque 'x86' en conflit avec le type d'ordinateur cible 'x64'\x0d
+        cmTC_f96f9.exe : fatal error LNK1120: 3 externes non résolus\x0d
+        ninja: build stopped: subcommand failed.
+        
+      exitCode: -1
+...

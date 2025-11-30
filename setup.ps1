@@ -190,8 +190,8 @@ if (-not $hasMsvc) {
     # Ensure Windows SDK x64 bin/libs are ahead
     $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
     if (Test-Path $sdkRoot) {
-        $sdkVersions = Get-ChildItem -Path (Join-Path $sdkRoot "Lib") -Directory | Sort-Object Name -Descending
-        if ($sdkVersions.Count -gt 0) {
+        $sdkVersions = @(Get-ChildItem -Path (Join-Path $sdkRoot "Lib") -Directory | Sort-Object Name -Descending)
+        if ($sdkVersions -and $sdkVersions.Count -gt 0) {
             $sdkVersion = $sdkVersions[0].Name
             $sdkBinX64 = Join-Path $sdkRoot "bin\$sdkVersion\x64"
             if (Test-Path $sdkBinX64) {
@@ -201,6 +201,20 @@ if (-not $hasMsvc) {
             $env:WindowsSDKLibVersion = "$sdkVersion\"
             $cmakeCompilerArgs += "-DCMAKE_SYSTEM_VERSION=$sdkVersion"
             Write-Host "Using Windows SDK $sdkVersion (x64)"
+            $sdkUmLib = Join-Path $sdkRoot "Lib\$sdkVersion\um\x64"
+            $sdkUcrtLib = Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x64"
+            $libParts = @()
+            if (Test-Path $sdkUcrtLib) { $libParts += $sdkUcrtLib }
+            if (Test-Path $sdkUmLib) { $libParts += $sdkUmLib }
+            # Add MSVC x64 libs
+            if ($env:VCToolsInstallDir) {
+                $msvcLibX64 = Join-Path $env:VCToolsInstallDir "lib\x64"
+                if (Test-Path $msvcLibX64) { $libParts += $msvcLibX64 }
+            }
+            if ($libParts.Count -gt 0) {
+                $env:LIB = ($libParts -join ";") + ";" + $env:LIB
+                Write-Host "LIB updated with x64 SDK/MSVC libs: $($libParts -join ';')"
+            }
         }
     }
     if ($clCmd) {
