@@ -8,6 +8,7 @@ Set-Location $scriptDir
 
 $tests = @(
     "LSTM-Crypto-Price-Prediction\test_lstm_module.py",
+    "tests\test_setup_filename.ps1",
     "tests\test_polyo_pipeline.py",
     "tests\use_case_simple.py",
     "tests\use_case_stress_tests.py",
@@ -43,6 +44,9 @@ function Log {
 
 function Build-TestCommand {
     param([string]$FullPath)
+    if ($FullPath.ToLower().EndsWith(".ps1")) {
+        return @("pwsh", @("-NoProfile","-ExecutionPolicy","Bypass","-File",$FullPath))
+    }
     if ($conda) {
         return @("conda", @("run","-n",$EnvName,"python",$FullPath))
     }
