@@ -25,5 +25,7 @@ dependencies:
       - stable-baselines3
       - "ray[rllib]"
       - requests
+      - openai
+      - telethon
       - tqdm
       - plotly

@@ -17,6 +17,12 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Tuple
 
 import numpy as np
+from telegram_signal_pipeline import (
+    OpenAISentimentClient,
+    ReliabilityLearner,
+    TelegramMessage,
+    TelegramSignalPipeline,
+)
 
 # Optional imports guarded inside tests
 ROOT = Path(__file__).resolve().parents[1]
@@ -368,6 +374,26 @@ def test_full_integration() -> Dict[str, Any]:
     }
 
 
+def test_telegram_signal_pipeline_smoke() -> Dict[str, Any]:
+    """
+    Ensure the Telegram sentiment + RL pipeline can run on dummy messages without network calls.
+    """
+    msgs = [
+        TelegramMessage(channel="alpha", message_id=1, text="Buy SOL and WIF now", timestamp=None),
+        TelegramMessage(channel="alerts", message_id=2, text="Potential exit on BTC", timestamp=None),
+    ]
+    pipeline = TelegramSignalPipeline(
+        sentiment_client=OpenAISentimentClient(api_key=None),
+        learner=ReliabilityLearner(),
+    )
+    result = pipeline.run([], limit=0, preloaded_messages=msgs)
+    return {
+        "n_messages": len(result["messages"]),
+        "n_raw_signals": len(result["signals"]),
+        "n_tokens": len(result["aggregated"]),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -385,6 +411,7 @@ def main() -> None:
         ("calibrating_notebooks_placeholder", test_calibrating_notebooks_placeholder),
         ("inter_module_pipeline", test_inter_module_pipeline),
         ("full_integration", test_full_integration),
+        ("telegram_signal_pipeline_smoke", test_telegram_signal_pipeline_smoke),
     ]
 
     results = [_run_test(name, fn) for name, fn in tests]

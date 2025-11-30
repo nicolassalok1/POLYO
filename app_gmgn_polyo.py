@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -11,6 +12,14 @@ import streamlit as st
 
 import dummy_gmgn
 import secure_api_key
+from telegram_signal_pipeline import (
+    DEFAULT_EXPORT_ROOT,
+    OpenAISentimentClient,
+    ReliabilityLearner,
+    TelegramScraperAdapter,
+    TelegramSignalPipeline,
+    build_feedback_from_pnl,
+)
 
 
 ROOT = Path(__file__).resolve().parent
@@ -539,6 +548,121 @@ def render_rl_demo(api_key: Optional[str], base_url: str) -> None:
         st.success(f"Final PnL: {sim['final_pnl']:.4f} | Drawdown: {sim['drawdown']:.4f}")
 
 
+def render_telegram_signal_tab(openai_key: Optional[str]) -> None:
+    st.header("Telegram Scraper → OpenAI Sentiment → RL Weighting")
+    st.caption(
+        "Ingest Telegram channels (via unnohwn/telegram-scraper exports or Telethon), "
+        "score messages with OpenAI, and learn per-source reliability to emit trading signals."
+    )
+    with st.expander("ℹ️ How this works"):
+        st.markdown(
+            """
+            - **Scraper**: Reads exports from `telegram-scraper` (`channel/channel.json|csv|db`). If Telethon + API credentials
+              are present (`TELEGRAM_API_ID/TELEGRAM_API_HASH` or session), it can fetch live messages.
+            - **Sentiment**: Uses OpenAI (if `OPENAI_API_KEY` is set or provided) to extract token calls; otherwise falls back to
+              simple heuristics.
+            - **RL**: Maintains per-source weights (channel/message type). Feedback from realised PnL updates the weights and
+              feeds back into scoring so noisy sources get down-weighted.
+            - **Outputs**: A table of proposed tokens/actions ranked by weighted score; stored in `st.session_state['telegram_trading_signals']`
+              so the rest of the pipeline can size trades.
+            """
+        )
+
+    default_channels = st.session_state.get("telegram_channels_text", "alpha_calls,signals,alerts")
+    channels_text = st.text_input("Channels (comma separated)", value=default_channels)
+    st.session_state["telegram_channels_text"] = channels_text
+    export_root = st.text_input("Export folder (telegram-scraper output)", value=str(DEFAULT_EXPORT_ROOT))
+    msg_limit = st.slider("Messages per channel", 10, 400, 120, 10)
+    pnl_feedback = st.number_input("Realised PnL for last batch (optional feedback)", value=0.0, step=10.0)
+    feedback_notional = st.number_input("Notional used for PnL", value=100.0, min_value=1.0, step=10.0)
+
+    run_btn = st.button("Run Telegram Signal Pipeline")
+    if run_btn:
+        channels = [c.strip() for c in channels_text.split(",") if c.strip()]
+        if not channels:
+            st.warning("Enter at least one channel.")
+            return
+
+        fetcher = TelegramScraperAdapter(export_root=Path(export_root))
+        learner = ReliabilityLearner(initial_weights=st.session_state.get("telegram_rl_weights", {}))
+        sentiment_client = OpenAISentimentClient(api_key=openai_key)
+        pipeline = TelegramSignalPipeline(fetcher=fetcher, sentiment_client=sentiment_client, learner=learner)
+        result = pipeline.run(channels, limit=msg_limit)
+
+        st.session_state["telegram_rl_weights"] = pipeline.learner.weights
+        st.session_state["telegram_trading_signals"] = result["aggregated"]
+        st.session_state["telegram_last_sources"] = list({sig.source_type for sig in result["signals"]})
+
+        st.subheader("Latest messages (first 15)")
+        messages = result["messages"][:15]
+        if messages:
+            df_msgs = pd.DataFrame(
+                [
+                    {
+                        "channel": m.channel,
+                        "message_id": m.message_id,
+                        "text": m.text[:140] + ("…" if len(m.text) > 140 else ""),
+                        "timestamp": m.timestamp,
+                    }
+                    for m in messages
+                ]
+            )
+            st.dataframe(df_msgs)
+        else:
+            st.info("No messages available from exports or live fetch.")
+
+        st.subheader("Raw sentiment")
+        df_raw = pd.DataFrame(
+            [
+                {
+                    "token": sig.token,
+                    "stance": sig.stance,
+                    "confidence": sig.confidence,
+                    "score": sig.sentiment_score,
+                    "source": sig.source,
+                    "source_type": sig.source_type,
+                    "weight_used": sig.weight,
+                    "reason": sig.reason,
+                }
+                for sig in result["signals"]
+            ]
+        )
+        if not df_raw.empty:
+            st.dataframe(df_raw)
+        else:
+            st.info("No sentiments extracted.")
+
+        st.subheader("Aggregated trading signals")
+        df_signals = pd.DataFrame(result["aggregated"])
+        if not df_signals.empty:
+            st.dataframe(df_signals)
+            st.success("Signals stored in session_state['telegram_trading_signals'] for downstream sizing.")
+        else:
+            st.warning("No trading signals generated.")
+
+        st.subheader("RL source weights")
+        df_weights = pd.DataFrame(
+            [{"source_type": k, "weight": v} for k, v in pipeline.learner.weights.items()]
+        )
+        if not df_weights.empty:
+            st.dataframe(df_weights)
+
+    if st.button("Apply PnL feedback to RL weights"):
+        sources = st.session_state.get("telegram_last_sources") or []
+        if not sources:
+            st.warning("Run the pipeline first so we know which sources to update.")
+            return
+        if abs(pnl_feedback) < 1e-9:
+            st.info("Enter a non-zero PnL to update weights.")
+            return
+        learner = ReliabilityLearner(initial_weights=st.session_state.get("telegram_rl_weights", {}))
+        sentiment_client = OpenAISentimentClient(api_key=openai_key)
+        feedback = [build_feedback_from_pnl(src, pnl_feedback, notional=feedback_notional) for src in sources]
+        learner.apply_feedback(feedback, openai_client=sentiment_client)
+        st.session_state["telegram_rl_weights"] = learner.weights
+        st.success("Weights updated with feedback; rerun the pipeline to see the impact.")
+
+
 def main() -> None:
     st.set_page_config(page_title="GMGN + POLYO Playground", layout="wide")
     st.title("GMGN + POLYO Quant Playground")
@@ -560,6 +684,8 @@ def main() -> None:
     stored_hash = secure_api_key.load_api_key_hash()
     api_key_input = st.sidebar.text_input("GMGN API key (x-route-key)", type="password")
     base_url = st.sidebar.text_input("GMGN base URL", value=DEFAULT_BASE_URL)
+    openai_default = os.getenv("OPENAI_API_KEY", "")
+    openai_key_input = st.sidebar.text_input("OpenAI API key (sentiment/RL)", value=openai_default, type="password")
     save_btn = st.sidebar.button("Save API Key Securely")
     clear_btn = st.sidebar.button("Clear API Key")
 
@@ -602,12 +728,13 @@ def main() -> None:
             st.sidebar.markdown("### MODE: TEST (Dummy Data)")
             st.sidebar.info("No API key; using dummy data.")
 
-    tab1, tab2, tab3, tab4 = st.tabs(
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(
         [
             "GMGN Live Market",
             "Quant Pipeline (Synthetic)",
             "GMGN + Quant Overlay",
             "RL Shitcoin Demo",
+            "Telegram Signals (RL)",
         ]
     )
 
@@ -619,6 +746,8 @@ def main() -> None:
         render_gmgn_overlay(effective_key, base_url)
     with tab4:
         render_rl_demo(effective_key, base_url)
+    with tab5:
+        render_telegram_signal_tab(openai_key_input or None)
 
 
 if __name__ == "__main__":
