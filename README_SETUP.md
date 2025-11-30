@@ -29,8 +29,57 @@ Certaines dépendances (limit-order-book) nécessitent un compilateur C++.
 - Dans `D:\PythonDProjects\POLYO`, relance `pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1` pour builder `limit-order-book`.
 - Pas besoin de rendre ça permanent : relance simplement une Developer PowerShell quand tu veux reconstruire `limit-order-book`. Si tu restes en PowerShell standard, appelle `VsDevCmd.bat` avant le setup.
 
-## Étape 3 — Miniconda/Conda
-1. Installe **Miniconda** ou **Anaconda** (choisir “Add conda to PATH” ou initialise le shell via `conda init powershell`).
+En résumé pour (re)builder `limit-order-book` :
+```pwsh
+# Dans une "Developer PowerShell for VS 2022" (menu Démarrer)
+cl   # vérifier que MSVC répond
+cd D:\PythonDProjects\POLYO
+Remove-Item limit-order-book\cpp\build -Recurse -Force -ErrorAction SilentlyContinue  # optionnel
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1
+```
+
+Si tu utilises le terminal intégré VS Code, crée/choisis un profil “Developer PowerShell” pour que `cl` soit chargé avant de lancer `setup.ps1`.
+
+### VS Code : choisir le profil “Developer PowerShell”
+1. `Ctrl+Shift+P` → “Terminal: Select Default Profile”.
+2. Choisir “Developer PowerShell for VS 2022” (ou “Developer Command Prompt for VS 2022”). Si tu ne le vois pas dans la liste, il faudra l’ajouter manuellement (voir ci-dessous).
+3. Ouvrir un nouveau terminal (`Ctrl+Shift+``) : `cl` sera dans le PATH.
+4. Si le profil n’apparaît pas, redémarrer VS Code ou la session. En dernier recours, ajouter un profil manuel pointant vers :
+   `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\Launch-VsDevShell.ps1 -Arch amd64 -HostArch amd64`
+
+Ajouter le profil manuellement (settings JSON VS Code) si absent :
+```json
+"terminal.integrated.profiles.windows": {
+  "Developer PowerShell": {
+    "path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\Launch-VsDevShell.ps1",
+    "args": ["-Arch", "amd64", "-HostArch", "amd64"],
+    "icon": "terminal-powershell"
+  }
+}
+```
+Puis sélectionne ce profil comme défaut et ouvre un nouveau terminal.
+
+## PowerShell + C++ dans VS Code (profil défaut)
+Objectif : ouvrir PowerShell dans le terminal intégré VS Code avec un compilateur C++ prêt à l'emploi.
+
+- Vérifier PowerShell 7 : `pwsh -v`. Si non trouvé, installer PowerShell 7 (MSI depuis https://aka.ms/powershell-release) puis rouvrir VS Code.
+- Définir PowerShell comme profil terminal du workspace : `Ctrl+Shift+P` -> "Preferences: Open Workspace Settings (JSON)" et ajoute/modifie :
+  ```json
+  {
+    "folders": [{ "path": "." }],
+    "settings": {
+      "terminal.integrated.defaultProfile.windows": "PowerShell"
+    }
+  }
+  ```
+  Remplace par `"Windows PowerShell"` si tu préfères la v5 intégrée, ou par un profil "Developer PowerShell" si tu utilises MSVC.
+- Compiler en C++ depuis PowerShell :
+  - MSVC (Build Tools) : ouvre une Developer PowerShell for VS 2022 ou exécute `VcVars64.bat`/`Launch-VsDevShell.ps1`, puis `cl /EHsc /std:c++17 main.cpp`.
+  - MinGW (MSYS2) : installe `mingw-w64-ucrt-x86_64-gcc`, ajoute `C:\msys64\ucrt64\bin` au PATH, puis `g++ -std=c++17 -O2 main.cpp -o main.exe`.
+- Contrôle rapide : `cl` doit afficher la version (MSVC) ou `g++ --version` (MinGW). Si la commande est introuvable, relance une Developer PowerShell ou corrige le PATH.
+
+## Étape 3 - Miniconda/Conda
+1. Installe **Miniconda** ou **Anaconda** (choisir "Add conda to PATH" ou initialise le shell via `conda init powershell`).
 2. Ouvre un PowerShell sans profil, teste `conda --version`.
 
 ## Étape 4 — Cloner le repo
