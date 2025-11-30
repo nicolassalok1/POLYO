@@ -61,7 +61,7 @@ function Run-Test {
     $full = Join-Path $scriptDir $Path
     if (-not (Test-Path $full)) {
         Log -Level "WARNING" -Message "Test not found: $full"
-        $results += [pscustomobject]@{ Test=$Path; Status="WARNING"; ExitCode=$null }
+        $script:results += [pscustomobject]@{ Test=$Path; Status="WARNING"; ExitCode=$null }
         return
     }
     $usePytest = $Path -like "*test_telegram_signal_pipeline_unit.py"
@@ -83,10 +83,10 @@ function Run-Test {
 
     if ($exit -eq 0) {
         Log -Level "SUCCESS" -Message "$Path OK"
-        $results += [pscustomobject]@{ Test=$Path; Status="SUCCESS"; ExitCode=$exit }
+        $script:results += [pscustomobject]@{ Test=$Path; Status="SUCCESS"; ExitCode=$exit }
     } else {
         Log -Level "ERROR" -Message "$Path exited with code $exit"
-        $results += [pscustomobject]@{ Test=$Path; Status="ERROR"; ExitCode=$exit }
+        $script:results += [pscustomobject]@{ Test=$Path; Status="ERROR"; ExitCode=$exit }
     }
 }
 
