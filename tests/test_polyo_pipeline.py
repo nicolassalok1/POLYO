@@ -104,19 +104,22 @@ def test_jumpdiff() -> Dict[str, Any]:
 
 
 def test_hmmlearn() -> Dict[str, Any]:
-    """Construct a GaussianHMM with fixed params and run decode on dummy data (no MKL needed)."""
-    from hmmlearn.hmm import GaussianHMM  # type: ignore
+    """Construct a GaussianHMM with fixed params; if libs/DLLs missing, return a skipped marker."""
+    try:
+        from hmmlearn.hmm import GaussianHMM  # type: ignore
+    except Exception as exc:  # noqa: BLE001
+        log.warning("hmmlearn import failed (%s); marking as unavailable.", exc)
+        return {"available": False, "reason": str(exc)}
 
     X = np.column_stack([np.sin(np.linspace(0, 2 * np.pi, 10)), np.ones(10)])
     model = GaussianHMM(n_components=2, covariance_type="diag", n_iter=1, random_state=0)
-    # Manually set parameters to avoid fitting/kmeans
     model.startprob_ = np.array([0.5, 0.5])
     model.transmat_ = np.array([[0.9, 0.1], [0.1, 0.9]])
     model.means_ = np.array([[0.0, 1.0], [0.5, 1.0]])
     model.covars_ = np.array([[0.1, 0.1], [0.2, 0.2]])
     logprob = model.score(X)
     decoded = model.predict(X[:5])
-    return {"logprob": float(logprob), "decoded": decoded.tolist()}
+    return {"available": True, "logprob": float(logprob), "decoded": decoded.tolist()}
 
 
 def test_pykalman() -> Dict[str, Any]:
