@@ -19,6 +19,11 @@ sys.path.insert(0, str(ROOT / "RLTrader"))
 sys.path.insert(0, str(ROOT / "TradeMaster"))
 sys.path.insert(0, str(ROOT / "limit-order-book" / "python"))
 sys.path.insert(0, str(ROOT / "Calibrating-Rough-Volatility-Models-with-Deep-Learning"))
+sys.path.insert(0, str(ROOT.parent / "src"))
+
+from polyo.config import PolyoConfig
+from polyo.lstm_forecaster import get_or_init_lstm_forecaster
+from polyo.rl import build_obs_with_lstm
 
 
 # Utility wrappers with safe imports
@@ -95,8 +100,11 @@ class MiniEnv:
     n: int
     prices: np.ndarray
     vols: np.ndarray
+    config: PolyoConfig
+    forecaster: Any | None = None
     idx: int = 0
     pos: int = 0  # -1,0,1
+    base_order: Tuple[str, ...] = ("price", "vol", "position")
 
     def reset(self) -> np.ndarray:
         self.idx = 0
@@ -116,13 +124,26 @@ class MiniEnv:
 
     def _obs(self) -> np.ndarray:
         i = min(self.idx, self.n - 1)
-        return np.array([self.prices[i], self.vols[i], float(self.pos)], dtype=float)
+        base_features = {
+            "price": self.prices[i],
+            "vol": self.vols[i],
+            "position": float(self.pos),
+        }
+        obs, _ = build_obs_with_lstm(
+            base_features=base_features,
+            base_order=self.base_order,
+            prices=self.prices[: i + 1],
+            config=self.config,
+            forecaster=self.forecaster,
+        )
+        return obs
 
 
-def rl_demo(steps: int) -> List[Dict[str, Any]]:
+def rl_demo(steps: int, config: PolyoConfig) -> List[Dict[str, Any]]:
     prices = 100 + np.cumsum(np.random.normal(0, 1, size=steps))
     vols = np.abs(np.diff(np.concatenate([[prices[0]], prices]))) + 1e-4
-    env = MiniEnv(n=steps, prices=prices, vols=vols)
+    forecaster = get_or_init_lstm_forecaster(config)
+    env = MiniEnv(n=steps, prices=prices, vols=vols, config=config, forecaster=forecaster)
     obs = env.reset()
     traj: List[Dict[str, Any]] = []
     for _ in range(steps):
@@ -197,8 +218,23 @@ elif section == "Regime Detection (HMM)":
 elif section == "RL Mini-Demo":
     st.header("RL Mini-Demo (random policy)")
     steps = st.sidebar.slider("Number of steps", 5, 20, 10, 1)
+    use_lstm = st.sidebar.checkbox("Activer LSTM", value=False)
+    lstm_horizon = st.sidebar.slider("Horizon LSTM (pas)", 1, 32, 8, 1)
+    lstm_features = st.sidebar.multiselect(
+        "LSTM features",
+        options=["returns", "price", "volatility"],
+        default=["returns", "price"],
+    )
+    lstm_model_path = st.sidebar.text_input("Chemin du modèle LSTM", value="models/lstm/model.pt")
+    config = PolyoConfig(
+        use_lstm=use_lstm,
+        lstm_horizon=lstm_horizon,
+        lstm_features=lstm_features or ["returns"],
+        lstm_model_path=lstm_model_path,
+    )
+
     if st.button("Run RL Demo"):
-        traj = rl_demo(steps)
+        traj = rl_demo(steps, config=config)
         st.write(traj)
         rewards = [t["reward"] for t in traj]
         st.line_chart(rewards)

@@ -19,6 +19,11 @@ sys.path.insert(0, str(ROOT / "jumpdiff"))
 sys.path.insert(0, str(ROOT / "pykalman"))
 sys.path.insert(0, str(ROOT / "hmmlearn" / "src"))
 sys.path.insert(0, str(ROOT / "limit-order-book" / "python"))
+sys.path.insert(0, str(ROOT / "src"))
+
+from polyo.config import PolyoConfig
+from polyo.lstm_forecaster import get_or_init_lstm_forecaster
+from polyo.rl import build_obs_with_lstm
 
 
 def log(level: str, message: str):
@@ -147,13 +152,16 @@ def scenario_hmm():
 
 # Scenario F — RL Environment Stress
 class StressEnv:
-    def __init__(self):
+    def __init__(self, config: PolyoConfig, forecaster=None):
         self.n = 12
         self.prices = 100 + np.cumsum(np.random.normal(0, 3, size=self.n))
         self.regimes = np.random.randint(0, 3, size=self.n)
         self.liquidity = np.random.choice([1.0, 0.5, 0.1], size=self.n, p=[0.5, 0.3, 0.2])
         self.idx = 0
         self.pos = 0
+        self.config = config
+        self.forecaster = forecaster
+        self.base_order = ("price", "regime", "liquidity", "position")
 
     def reset(self):
         self.idx = 0
@@ -173,18 +181,26 @@ class StressEnv:
 
     def _obs(self):
         i = min(self.idx, self.n - 1)
-        return np.array(
-            [
-                self.prices[i],
-                float(self.regimes[i]),
-                float(self.liquidity[i]),
-                float(self.pos),
-            ]
+        base_features = {
+            "price": self.prices[i],
+            "regime": float(self.regimes[i]),
+            "liquidity": float(self.liquidity[i]),
+            "position": float(self.pos),
+        }
+        obs, _ = build_obs_with_lstm(
+            base_features=base_features,
+            base_order=self.base_order,
+            prices=self.prices[: i + 1],
+            config=self.config,
+            forecaster=self.forecaster,
         )
+        return obs
 
 
 def scenario_rl():
-    env = StressEnv()
+    config = PolyoConfig(use_lstm=True, lstm_horizon=4, lstm_features=["returns", "price"])
+    forecaster = get_or_init_lstm_forecaster(config)
+    env = StressEnv(config=config, forecaster=forecaster)
     obs, _ = env.reset()
     traj: List[Any] = []
     for _ in range(10):

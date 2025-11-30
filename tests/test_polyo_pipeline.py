@@ -56,6 +56,7 @@ def _ensure_workspace_paths() -> None:
     if root_str not in sys.path:
         sys.path.insert(0, root_str)
     extra_paths = {
+        "polyo": ROOT / "src",
         "rbergomi": ROOT / "rough_bergomi" / "rbergomi",
         "RLTrader": ROOT / "RLTrader" / "lib",
         "limit-order-book": ROOT / "limit-order-book" / "python",
