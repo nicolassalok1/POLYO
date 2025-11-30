@@ -71,12 +71,14 @@ Invoke-CmdChecked "python" @("-m","pip","install","--force-reinstall","certifi")
 
 # Reinstall pip dependencies listed in environment.yml (pip section)
 $pipPkgs = @(
+    # Core pins to align TF/JAX/pyarrow
     "numpy==1.26.4",
     "typing-extensions==4.15.0",
     "tensorboard==2.18.0",
     "tensorflow==2.18.0",
     "pyarrow==14.0.2",
-    "gymnasium",
+    # RL / deps
+    "gymnasium==1.1.1",  # matches ray[rllib] constraint
     "pyro-ppl",
     "stable-baselines3",
     "ray[rllib]",
@@ -136,9 +138,6 @@ Ensure-Torch -UseGpu:$gpuAvailable
 $isLinuxOrWSL = -not $IsWindows
 Write-Host "Installing JAX CPU build (pinned for TensorFlow compatibility)..."
 Invoke-CmdChecked "pip" @("install","--upgrade","--progress-bar","off","jax==0.4.33","jaxlib==0.4.33","numpy==1.26.4") -AllowedExitCodes @(0,120)
-
-# Core Python libs (top-ups)
-Invoke-CmdChecked "pip" @("install","--upgrade","--progress-bar","off","numpy==1.26.4","pyarrow==14.0.2","gymnasium","tensorboard==2.18.0","pyro-ppl","stable-baselines3","ray[rllib]","requests","tqdm","plotly") -AllowedExitCodes @(0,120)
 
 function Install-Editable {
     param(
