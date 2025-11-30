@@ -7,7 +7,7 @@ Steps: rough path -> returns -> jumpdiff params -> Kalman smoothing -> HMM regim
 
 import random
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
@@ -25,7 +25,12 @@ sys.path.insert(0, str(ROOT / "rough_bergomi"))
 sys.path.insert(0, str(ROOT / "jumpdiff"))
 sys.path.insert(0, str(ROOT / "pykalman"))
 sys.path.insert(0, str(ROOT / "hmmlearn" / "src"))
+sys.path.insert(0, str(ROOT / "src"))
 # -------------------------------------------------------------------
+
+from polyo.config import PolyoConfig
+from polyo.lstm_forecaster import get_or_init_lstm_forecaster
+from polyo.rl import ObservationBuilder, build_obs_with_lstm
 
 
 def simulate_prices(n: int = 16) -> np.ndarray:
@@ -88,8 +93,14 @@ class TinyEnv:
     prices: np.ndarray
     vols: np.ndarray
     regimes: np.ndarray
+    config: PolyoConfig
+    forecaster: Any | None = None
     idx: int = 0
     position: int = 0  # -1,0,1
+    base_order: Tuple[str, ...] = field(default_factory=lambda: ("price", "vol", "regime", "position"))
+
+    def __post_init__(self):
+        self.obs_builder = ObservationBuilder(self.base_order)
 
     def reset(self) -> Tuple[np.ndarray, Dict[str, Any]]:
         self.idx = 0
@@ -109,10 +120,20 @@ class TinyEnv:
 
     def _obs(self) -> np.ndarray:
         i = min(self.idx, len(self.prices) - 1)
-        return np.array(
-            [self.prices[i], self.vols[i], float(self.regimes[i]), float(self.position)],
-            dtype=float,
+        base_features = {
+            "price": self.prices[i],
+            "vol": self.vols[i],
+            "regime": float(self.regimes[i]),
+            "position": float(self.position),
+        }
+        obs, _ = build_obs_with_lstm(
+            base_features=base_features,
+            base_order=self.base_order,
+            prices=self.prices[: i + 1],
+            config=self.config,
+            forecaster=self.forecaster,
         )
+        return obs
 
 
 def run_pipeline():
@@ -123,7 +144,9 @@ def run_pipeline():
     feats = np.column_stack([smoothed, returns])
     regimes = hmm_classify(feats)
 
-    env = TinyEnv(prices=prices, vols=np.abs(smoothed), regimes=regimes)
+    config = PolyoConfig(use_lstm=True, lstm_horizon=4, lstm_features=["returns", "price"])
+    forecaster = get_or_init_lstm_forecaster(config) if config.use_lstm else None
+    env = TinyEnv(prices=prices, vols=np.abs(smoothed), regimes=regimes, config=config, forecaster=forecaster)
     obs, _ = env.reset()
     traj = []
     for _ in range(10):
@@ -138,6 +161,7 @@ def run_pipeline():
     log("INFO", f"jumpdiff params={jump_params}")
     log("INFO", f"smoothed(first5)={smoothed[:5].round(4).tolist()}")
     log("INFO", f"regimes(first10)={regimes[:10].tolist()}")
+    log("INFO", f"obs_dim={len(obs)} lstm={'on' if config.use_lstm else 'off'}")
     for idx, step in enumerate(traj):
         log("INFO", f"rl_step[{idx}] obs={step[0]} action={step[1]} reward={step[2]}")
     log("SUCCESS", "use_case_simple completed")

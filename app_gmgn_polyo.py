@@ -26,9 +26,47 @@ SYSPATHS = [
 ]
 for p in SYSPATHS:
     sys.path.insert(0, str(p))
+sys.path.insert(0, str(ROOT / "src"))
+
+from polyo.config import PolyoConfig
+from polyo.lstm_forecaster import get_or_init_lstm_forecaster
+from polyo.rl import build_obs_with_lstm
 
 
 DEFAULT_BASE_URL = "https://gmgn.ai/api/v1/solana"
+
+
+def init_config() -> PolyoConfig:
+    cfg = st.session_state.get("polyo_config")
+    if not isinstance(cfg, PolyoConfig):
+        cfg = PolyoConfig()
+    st.session_state["polyo_config"] = cfg
+    return cfg
+
+
+def configure_lstm_settings(config: PolyoConfig) -> PolyoConfig:
+    st.sidebar.subheader("LSTM Forecasting")
+    use_lstm = st.sidebar.checkbox("Activer LSTM", value=config.use_lstm, key="use_lstm_toggle")
+    horizon = st.sidebar.slider("Horizon LSTM (pas)", min_value=1, max_value=64, value=int(config.lstm_horizon), step=1)
+    feature_options = ["returns", "price", "volatility"]
+    features = st.sidebar.multiselect(
+        "LSTM features",
+        options=feature_options,
+        default=config.lstm_features or ["returns"],
+    )
+    available_models = [str(p) for p in (ROOT / "models" / "lstm").glob("*.pt")]
+    selected_model = None
+    if available_models:
+        selected_model = st.sidebar.selectbox("Modèles LSTM disponibles", options=available_models)
+    model_path = st.sidebar.text_input(
+        "Chemin du modèle LSTM",
+        value=selected_model or config.lstm_model_path,
+    )
+    config.use_lstm = use_lstm
+    config.lstm_horizon = int(horizon)
+    config.lstm_features = features or ["returns"]
+    config.lstm_model_path = model_path
+    return config
 
 
 def gmgn_request(
@@ -276,7 +314,14 @@ def run_gmgn_analysis(token_addr: str, api_key: Optional[str], base_url: str) ->
     }
 
 
-def run_rl_simulation(prices: np.ndarray, regimes: Optional[np.ndarray], steps: int = 20) -> Dict[str, Any]:
+def run_rl_simulation(
+    prices: np.ndarray,
+    regimes: Optional[np.ndarray],
+    steps: int = 20,
+    config: Optional[PolyoConfig] = None,
+    forecaster=None,
+) -> Dict[str, Any]:
+    config = config or PolyoConfig()
     rng = np.random.default_rng()
     if prices.size < steps + 1:
         extra_steps = steps + 1 - prices.size
@@ -286,6 +331,7 @@ def run_rl_simulation(prices: np.ndarray, regimes: Optional[np.ndarray], steps: 
     actions_map = {0: "hold", 1: "long", 2: "short"}
     history: List[Dict[str, Any]] = []
     cum_pnl = 0.0
+    base_order = ("price", "norm_price", "regime")
     for t in range(steps):
         p0 = float(prices[t])
         p1 = float(prices[t + 1])
@@ -294,6 +340,17 @@ def run_rl_simulation(prices: np.ndarray, regimes: Optional[np.ndarray], steps: 
         reward = delta if action == 1 else (-delta if action == 2 else 0.0)
         cum_pnl += reward
         reg = int(regimes[t]) if regimes is not None and len(regimes) > t else 0
+        obs, obs_names = build_obs_with_lstm(
+            base_features={
+                "price": p1,
+                "norm_price": p1 / prices[0],
+                "regime": reg,
+            },
+            base_order=base_order,
+            prices=prices[: t + 2],
+            config=config,
+            forecaster=forecaster,
+        )
         history.append(
             {
                 "t": t,
@@ -303,6 +360,8 @@ def run_rl_simulation(prices: np.ndarray, regimes: Optional[np.ndarray], steps: 
                 "action": actions_map[action],
                 "reward": reward,
                 "cum_pnl": cum_pnl,
+                "obs": obs.tolist(),
+                "obs_fields": obs_names,
             }
         )
     df = pd.DataFrame(history)
@@ -495,7 +554,7 @@ def render_gmgn_overlay(api_key: Optional[str], base_url: str) -> None:
         st.success("GMGN overlay analysis done.")
 
 
-def render_rl_demo(api_key: Optional[str], base_url: str) -> None:
+def render_rl_demo(api_key: Optional[str], base_url: str, config: PolyoConfig) -> None:
     st.header("RL Shitcoin Demo")
     with st.expander("ℹ️ Comment fonctionne cet onglet ?"):
         st.markdown(
@@ -508,6 +567,10 @@ def render_rl_demo(api_key: Optional[str], base_url: str) -> None:
         )
     source = st.radio("Data source", ["Synthetic", "GMGN token"])
     steps = st.slider("Simulation steps", 5, 30, 12, 1)
+    st.caption(
+        f"LSTM {'activé' if config.use_lstm else 'désactivé'} | horizon={config.lstm_horizon} | features={', '.join(config.lstm_features)}"
+    )
+    forecaster = get_or_init_lstm_forecaster(config) if config.use_lstm else None
     token_addr = None
     if source == "GMGN token":
         token_addr = st.text_input("GMGN token address", key="rl_token_input")
@@ -518,7 +581,7 @@ def render_rl_demo(api_key: Optional[str], base_url: str) -> None:
                 for note in notes:
                     st.warning(note)
             regimes = detect_regimes(np.diff(np.log(price_path + 1e-9)), None)
-            sim = run_rl_simulation(price_path, regimes, steps=steps)
+            sim = run_rl_simulation(price_path, regimes, steps=steps, config=config, forecaster=forecaster)
         else:
             if not token_addr:
                 st.warning("Enter a token address to fetch GMGN data.")
@@ -528,7 +591,7 @@ def render_rl_demo(api_key: Optional[str], base_url: str) -> None:
             if prices.size < 2:
                 st.error("Not enough GMGN prices to run the demo.")
                 return
-            sim = run_rl_simulation(prices, gmgn_data["regimes"], steps=steps)
+            sim = run_rl_simulation(prices, gmgn_data["regimes"], steps=steps, config=config, forecaster=forecaster)
             if gmgn_data.get("mode") == "live":
                 st.success("Mode: LIVE (GMGN API)")
             else:
@@ -543,6 +606,8 @@ def main() -> None:
     st.set_page_config(page_title="GMGN + POLYO Playground", layout="wide")
     st.title("GMGN + POLYO Quant Playground")
     st.write("Live GMGN market hooks combined with rough volatility, jump diffusion, Kalman smoothing, HMM regimes, and a tiny RL loop.")
+
+    config = configure_lstm_settings(init_config())
 
     with st.expander("📘 Guide rapide de l'application (GMGN live ou dummy)"):
         st.markdown(
@@ -618,7 +683,7 @@ def main() -> None:
     with tab3:
         render_gmgn_overlay(effective_key, base_url)
     with tab4:
-        render_rl_demo(effective_key, base_url)
+        render_rl_demo(effective_key, base_url, config)
 
 
 if __name__ == "__main__":

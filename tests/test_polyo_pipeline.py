@@ -43,6 +43,7 @@ log = logging.getLogger("polyo-smoke")
 def _ensure_workspace_paths() -> None:
     """Prepend local repo modules to sys.path so imports work without pip installs."""
     extra_paths = {
+        "polyo": ROOT / "src",
         "rbergomi": ROOT / "rough_bergomi" / "rbergomi",
         "RLTrader": ROOT / "RLTrader" / "lib",
         "limit-order-book": ROOT / "limit-order-book" / "python",
