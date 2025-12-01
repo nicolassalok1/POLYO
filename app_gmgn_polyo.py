@@ -643,9 +643,43 @@ def render_telegram_signal_tab(openai_key: Optional[str]) -> None:
     apply_feedback_now = st.checkbox("Apply PnL feedback to RL weights during this run", value=False)
     offer_download = st.checkbox("Offer download of aggregated signals as JSON", value=True)
 
+    st.markdown("#### Tester un canal (aperçu brut)")
+    preview_channel = st.text_input("Canal unique à prévisualiser", value="", key="preview_channel")
+    preview_limit = st.slider("Messages à charger pour l'aperçu", 5, 200, 40, 5, key="preview_limit")
+    if st.button("Fetch / afficher le canal"):
+        if not preview_channel.strip():
+            st.warning("Renseigne un canal pour l'aperçu.")
+        else:
+            normalized = preview_channel.strip()
+            if normalized.startswith("@"):
+                normalized = normalized[1:]
+            fetcher_preview = TelegramScraperAdapter(export_root=Path(export_root))
+            preview_msgs = fetcher_preview.fetch_messages([normalized], limit=preview_limit)
+            if preview_msgs:
+                df_prev = pd.DataFrame(
+                    [
+                        {
+                            "channel": m.channel,
+                            "message_id": m.message_id,
+                            "timestamp": m.timestamp,
+                            "text": m.text,
+                        }
+                        for m in preview_msgs
+                    ]
+                )
+                st.dataframe(df_prev)
+            else:
+                st.info("Aucun message trouvé (export manquant ou canal vide).")
+
     run_btn = st.button("Run Telegram Signal Pipeline")
     if run_btn:
-        channels = [c.strip() for c in channels_text.split(",") if c.strip()]
+        channels = []
+        for c in channels_text.split(","):
+            norm = c.strip()
+            if norm.startswith("@"):
+                norm = norm[1:]
+            if norm:
+                channels.append(norm)
         if not channels:
             st.warning("Enter at least one channel.")
             return

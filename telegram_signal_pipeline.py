@@ -17,6 +17,25 @@ log = logging.getLogger("telegram-signal-pipeline")
 
 TOKEN_PATTERN = re.compile(r"\$?[A-Za-z]{2,10}")
 DEFAULT_EXPORT_ROOT = Path(__file__).resolve().parent / "telegram_exports"
+SAMPLE_EXPORTS: Dict[str, List[Dict[str, Any]]] = {
+    "GMGN_sol_bot": [
+        {
+            "message_id": 1,
+            "date": "2024-10-01 12:00:00",
+            "message": "Alpha call: Long $BONK here, solid liquidity building.",
+        },
+        {
+            "message_id": 2,
+            "date": "2024-10-01 12:05:00",
+            "message": "Signal: Adding $SOL spot, bullish on network flows.",
+        },
+        {
+            "message_id": 3,
+            "date": "2024-10-01 12:15:00",
+            "message": "Caution on $JUP, taking partial profits.",
+        },
+    ]
+}
 
 
 @dataclass
@@ -85,6 +104,8 @@ class TelegramScraperAdapter:
         messages: List[TelegramMessage] = []
         for channel in channels:
             channel = channel.strip()
+            if channel.startswith("@"):
+                channel = channel[1:]
             if not channel:
                 continue
             loaded = self._load_from_exports(channel, limit)
@@ -144,6 +165,10 @@ class TelegramScraperAdapter:
                 ]
             except Exception as exc:  # noqa: BLE001
                 log.warning("Failed to read SQLite export for %s (%s)", channel, exc)
+        # Built-in sample data for quick testing when no exports are present
+        sample = SAMPLE_EXPORTS.get(channel)
+        if sample:
+            return self._convert_records(channel, sample[:limit])
         return []
 
     def _parse_timestamp(self, ts: Any) -> Optional[float]:
