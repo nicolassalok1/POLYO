@@ -14,6 +14,7 @@ import streamlit as st
 
 import dummy_gmgn
 import secure_api_key
+from gmgn_client import GMGNSolanaClient, GMGNError
 from telegram_signal_pipeline import (
     DEFAULT_EXPORT_ROOT,
     OpenAISentimentClient,
@@ -796,7 +797,7 @@ def render_telegram_signal_tab(openai_key: Optional[str]) -> None:
         st.success("Weights updated with feedback; rerun the pipeline to see the impact.")
 
 
-def render_pipeline_tests() -> None:
+def render_pipeline_tests(api_key: str) -> None:
     st.header("Pipeline Demo Tests")
     st.caption("Run each test module manually. If a step fails or its log is empty, downstream steps will use the constant fallback files.")
 
@@ -888,6 +889,7 @@ def render_pipeline_tests() -> None:
     ]
 
     for step in steps:
+        log_state_key = f"log_edit_{step['log']}"
         st.subheader(step["label"])
         cols = st.columns(2)
         with cols[0]:
@@ -903,27 +905,13 @@ def render_pipeline_tests() -> None:
         with cols[1]:
             st.markdown("**Current log output**")
             log_path = log_dir / step["log"]
-            log_key = f"{step['label']}_log_edit"
-            if log_key not in st.session_state:
-                st.session_state[log_key] = ""
-            cols_log = st.columns(3)
-            with cols_log[0]:
-                if st.button("Charger log", key=f"{step['label']}_load"):
-                    st.session_state[log_key] = read_text(log_path)
-            with cols_log[1]:
-                if st.button("Vider log", key=f"{step['label']}_clear"):
-                    st.session_state[log_key] = ""
-            with cols_log[2]:
-                if st.button("Sauver log", key=f"{step['label']}_save"):
-                    log_path.parent.mkdir(parents=True, exist_ok=True)
-                    log_path.write_text(st.session_state[log_key], encoding="utf-8")
-                    st.success("Log sauvegardé.")
-
+            if log_state_key not in st.session_state:
+                st.session_state[log_state_key] = ""
             st.text_area(
                 "Log content (éditable, utilisé si non vide)",
-                value=st.session_state[log_key],
+                value=st.session_state[log_state_key],
                 height=200,
-                key=log_key,
+                key=log_state_key,
             )
 
             run_btn = st.button(f"Run {step['label']}", key=f"{step['label']}_run")
@@ -932,6 +920,21 @@ def render_pipeline_tests() -> None:
                 args = step.get("args_fn", lambda: [])()
                 cmd = [sys.executable, str(script_path)] + args
                 try:
+                    # Persist previous step log content so current step can read it
+                    idx = steps.index(step)
+                    if idx > 0:
+                        prev = steps[idx - 1]
+                        prev_log_state_key = f"log_edit_{prev['log']}"
+                        prev_log_path = log_dir / prev["log"]
+                        prev_log_path.parent.mkdir(parents=True, exist_ok=True)
+                        prev_content = st.session_state.get(prev_log_state_key, "")
+                        prev_log_path.write_text(prev_content, encoding="utf-8")
+
+                    log_path.parent.mkdir(parents=True, exist_ok=True)
+                    # Save current edited content before run
+                    current_content = st.session_state.get(log_state_key, "")
+                    log_path.write_text(current_content, encoding="utf-8")
+
                     result = subprocess.run(cmd, capture_output=True, text=True, check=False)
                     has_content = log_path.exists() and log_path.stat().st_size > 0
                     if result.returncode == 0 and has_content:
@@ -940,12 +943,114 @@ def render_pipeline_tests() -> None:
                         st.warning(f"WARNING: return code {result.returncode} (log has content; fallback logic may be used).")
                     else:
                         st.error(f"ERROR: return code {result.returncode} and log empty; downstream will use fallback.")
+                    # Reload displayed content from file after run
+                    st.session_state[log_state_key] = read_text(log_path)
                     if result.stdout:
                         st.code(result.stdout, language="text")
                     if result.stderr:
                         st.code(result.stderr, language="text")
                 except Exception as exc:
                     st.error(f"Failed to run step: {exc}")
+
+    st.divider()
+    st.subheader("GMGN Swap Route Test (read-only)")
+    st.caption("Query the GMGN Solana router to fetch a swap route (no signing/submission here).")
+    if not api_key:
+        st.warning("Provide a GMGN API key in the sidebar to test the swap route.")
+        return
+
+    col_a, col_b = st.columns(2)
+    with col_a:
+        swap_token_in = st.text_input("Input token mint", value="So11111111111111111111111111111111111111112", key="swap_token_in")
+        swap_amount = st.number_input("Input amount (lamports)", value=1000000, min_value=1, step=1000, key="swap_amount")
+        swap_slip = st.slider("Slippage (%)", 0.1, 50.0, 10.0, 0.1, key="swap_slip")
+    with col_b:
+        swap_token_out = st.text_input("Output token mint", value="Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", key="swap_token_out")
+        swap_from = st.text_input("From address (payer)", value="", key="swap_from_addr")
+        swap_mode = st.selectbox("Swap mode", ["ExactIn", "ExactOut"], index=0, key="swap_mode")
+        swap_anti_mev = st.checkbox("Use Anti-MEV routing", value=True, key="swap_anti_mev")
+        swap_fee = st.number_input("Priority fee (SOL, optional)", value=0.0, min_value=0.0, step=0.0001, format="%.6f", key="swap_fee")
+        swap_partner = st.text_input("Partner (optional)", value="", key="swap_partner")
+
+    if st.button("Query GMGN Route", key="query_gmgn_route"):
+        client = GMGNSolanaClient(api_key=api_key)
+        try:
+            resp = client.get_swap_route(
+                token_in_address=swap_token_in.strip(),
+                token_out_address=swap_token_out.strip(),
+                in_amount_lamports=int(swap_amount),
+                from_address=swap_from.strip(),
+                slippage_pct=swap_slip,
+                swap_mode=swap_mode,
+                fee=swap_fee if swap_fee > 0 else None,
+                is_anti_mev=swap_anti_mev,
+                partner=swap_partner or None,
+            )
+            st.success("Route retrieved.")
+            st.json(resp.get("quote") or {}, expanded=False)
+            raw_tx = resp.get("raw_tx") or {}
+            st.markdown("**Raw transaction (unsigned, base64 preview)**")
+            st.code((raw_tx.get("swapTransaction", "") or "")[:300] + "...", language="text")
+            st.write(
+                {
+                    "lastValidBlockHeight": raw_tx.get("lastValidBlockHeight"),
+                    "recentBlockhash": raw_tx.get("recentBlockhash"),
+                    "prioritizationFeeLamports": raw_tx.get("prioritizationFeeLamports"),
+                }
+            )
+        except GMGNError as exc:
+            st.error(f"GMGN API error: {exc}")
+        except Exception as exc:
+            st.error(f"Unexpected error: {exc}")
+
+
+def render_gmgn_swap_client(api_key: str) -> None:
+    st.header("GMGN Solana Swap Client (Query Router Only)")
+    st.caption("Build and query swap routes via GMGN Solana Trading API. No signing or submission is performed here.")
+    if not api_key:
+        st.warning("Provide a GMGN API key in the sidebar to query routes.")
+        return
+
+    token_in = st.text_input("Input token mint (token_in_address)", value="So11111111111111111111111111111111111111112")
+    token_out = st.text_input("Output token mint (token_out_address)", value="Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB")  # USDT
+    from_addr = st.text_input("From address (payer)", value="")
+    in_amount = st.number_input("Input amount (lamports)", value=1000000, min_value=1, step=1000)
+    slippage = st.slider("Slippage (%)", 0.1, 50.0, 10.0, 0.1)
+    swap_mode = st.selectbox("Swap mode", options=["ExactIn", "ExactOut"], index=0)
+    is_anti_mev = st.checkbox("Use Anti-MEV routing (JITO)", value=True)
+    fee = st.number_input("Priority fee (SOL, optional)", value=0.0, min_value=0.0, step=0.0001, format="%.6f")
+    partner = st.text_input("Partner (optional)", value="")
+
+    if st.button("Query swap route"):
+        client = GMGNSolanaClient(api_key=api_key)
+        try:
+            resp = client.get_swap_route(
+                token_in_address=token_in.strip(),
+                token_out_address=token_out.strip(),
+                in_amount_lamports=int(in_amount),
+                from_address=from_addr.strip(),
+                slippage_pct=slippage,
+                swap_mode=swap_mode,
+                fee=fee if fee > 0 else None,
+                is_anti_mev=is_anti_mev,
+                partner=partner or None,
+            )
+            st.success("Route retrieved.")
+            st.json(resp.get("quote") or {}, expanded=False)
+            st.markdown("**Raw transaction (unsigned, base64)**")
+            raw_tx = resp.get("raw_tx") or {}
+            st.code(raw_tx.get("swapTransaction", "")[:300] + "...", language="text")
+            st.write(
+                {
+                    "lastValidBlockHeight": raw_tx.get("lastValidBlockHeight"),
+                    "recentBlockhash": raw_tx.get("recentBlockhash"),
+                    "prioritizationFeeLamports": raw_tx.get("prioritizationFeeLamports"),
+                }
+            )
+        except GMGNError as exc:
+            st.error(f"GMGN API error: {exc}")
+        except Exception as exc:
+            st.error(f"Unexpected error: {exc}")
 
 
 def main() -> None:
@@ -1029,7 +1134,7 @@ def main() -> None:
             st.sidebar.markdown("### MODE: TEST (Dummy Data)")
             st.sidebar.info("No API key; using dummy data.")
 
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
         [
             "GMGN Live Market",
             "Quant Pipeline (Synthetic)",
@@ -1037,6 +1142,7 @@ def main() -> None:
             "RL Shitcoin Demo",
             "Telegram Signals (RL)",
             "Pipeline Demo Tests",
+            "GMGN Swap Client",
         ]
     )
 
@@ -1051,7 +1157,9 @@ def main() -> None:
     with tab5:
         render_telegram_signal_tab(openai_key_input or None)
     with tab6:
-        render_pipeline_tests()
+        render_pipeline_tests(effective_key)
+    with tab7:
+        render_gmgn_swap_client(effective_key)
 
 
 if __name__ == "__main__":
