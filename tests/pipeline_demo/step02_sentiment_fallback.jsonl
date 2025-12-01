@@ -1,0 +1,1 @@
+{"message_id": 1, "channel": "fallback_channel", "sentiment": "positive", "sentiment_score": 0.4, "tokens_mentioned": ["BONK", "SOL"], "confidence": 0.5, "reasoning": "fallback sentiment", "message_excerpt": "Alpha call: Long BONK, add SOL"}

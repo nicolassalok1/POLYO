@@ -1,0 +1,2 @@
+{"token": "BONK", "kalman_smoothed": [1.0, 1.01, 1.02, 1.015], "kalman_last": 1.015}
+{"token": "SOL", "kalman_smoothed": [20.0, 20.3, 20.35, 20.6], "kalman_last": 20.6}

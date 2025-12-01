@@ -1,0 +1,2 @@
+{"token": "BONK", "action": "BUY", "confidence": 0.5, "recommended_notional": 120.0, "reasoning": "fallback order"}
+{"token": "SOL", "action": "AVOID", "confidence": 0.2, "recommended_notional": 80.0, "reasoning": "fallback order"}
