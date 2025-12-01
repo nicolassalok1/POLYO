@@ -4,7 +4,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 STEPS = [
     ("step01_fetch_telegram.py", ["--channel", "@gmgnsignals", "--limit", "50"]),
     ("step02_sentiment_openai.py", []),

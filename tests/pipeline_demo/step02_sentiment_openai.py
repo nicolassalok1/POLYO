@@ -8,7 +8,11 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
-from pipeline_demo.pipeline_paths import dump_jsonl, load_jsonl, log_path
+ROOT = Path(__file__).resolve().parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from pipeline_paths import dump_jsonl, load_jsonl, log_path
 
 try:
     from telegram_signal_pipeline import OpenAISentimentClient, TelegramMessage

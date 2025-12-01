@@ -6,7 +6,11 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List
 
-from pipeline_demo.pipeline_paths import dump_jsonl, load_jsonl, log_path
+ROOT = Path(__file__).resolve().parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from pipeline_paths import dump_jsonl, load_jsonl, log_path
 
 
 def setup_logger() -> logging.Logger:
