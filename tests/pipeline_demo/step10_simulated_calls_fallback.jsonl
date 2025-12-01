@@ -1,2 +1,0 @@
-{"token": "BONK", "action": "BUY", "size": 120.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "Fallback simulated order to GMGN API (no live execution)."}
-{"token": "SOL", "action": "AVOID", "size": 80.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "Fallback simulated order to GMGN API (no live execution)."}
