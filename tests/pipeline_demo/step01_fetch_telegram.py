@@ -1,0 +1,80 @@
+from __future__ import annotations
+
+import argparse
+import logging
+import sys
+from pathlib import Path
+from typing import List, Dict, Any
+
+from pipeline_demo.pipeline_paths import dump_jsonl, log_path
+
+try:
+    from telegram_signal_pipeline import TelegramScraperAdapter
+except Exception:
+    TelegramScraperAdapter = None  # type: ignore
+
+
+def setup_logger() -> logging.Logger:
+    logger = logging.getLogger("step01_fetch_telegram")
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
+    logger.addHandler(handler)
+    return logger
+
+
+def fetch_messages(channel: str, limit: int, export_root: Path | None, logger: logging.Logger) -> List[Dict[str, Any]]:
+    channel = channel.lstrip("@").strip()
+    adapter = TelegramScraperAdapter(export_root=export_root) if TelegramScraperAdapter else None
+    if adapter:
+        try:
+            msgs = adapter.fetch_messages([channel], limit=limit)
+            return [
+                {
+                    "channel": m.channel,
+                    "message_id": m.message_id,
+                    "text": m.text,
+                    "timestamp": m.timestamp,
+                    "source_type": m.source_type,
+                }
+                for m in msgs
+            ]
+        except Exception as exc:
+            logger.warning("Failed to fetch via adapter (%s). Falling back to sample.", exc)
+
+    sample = [
+        {
+            "channel": channel or "sample_channel",
+            "message_id": idx + 1,
+            "text": txt,
+            "timestamp": None,
+            "source_type": "channel",
+        }
+        for idx, txt in enumerate(
+            [
+                "Alpha call: Long $BONK here, solid liquidity building.",
+                "Signal: Adding $SOL spot, bullish on network flows.",
+                "Caution on $JUP, taking partial profits.",
+            ]
+        )
+    ]
+    logger.info("Using fallback sample messages (%d rows).", len(sample))
+    return sample[:limit]
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Fetch Telegram messages and log them to a JSONL file.")
+    parser.add_argument("--channel", required=True, help="Telegram channel handle or t.me link.")
+    parser.add_argument("--limit", type=int, default=100, help="Max messages to fetch.")
+    parser.add_argument("--export-root", type=Path, default=None, help="Path to telegram-scraper exports.")
+    args = parser.parse_args()
+
+    logger = setup_logger()
+    messages = fetch_messages(args.channel, args.limit, args.export_root, logger)
+    out_path = log_path("step01_telegram_messages.log")
+    dump_jsonl(out_path, messages)
+    logger.info("Wrote %d messages to %s", len(messages), out_path)
+
+
+if __name__ == "__main__":
+    main()
