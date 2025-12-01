@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -638,6 +639,8 @@ def render_telegram_signal_tab(openai_key: Optional[str]) -> None:
     msg_limit = st.slider("Messages per channel", 10, 400, 120, 10)
     pnl_feedback = st.number_input("Realised PnL for last batch (optional feedback)", value=0.0, step=10.0)
     feedback_notional = st.number_input("Notional used for PnL", value=100.0, min_value=1.0, step=10.0)
+    apply_feedback_now = st.checkbox("Apply PnL feedback to RL weights during this run", value=False)
+    offer_download = st.checkbox("Offer download of aggregated signals as JSON", value=True)
 
     run_btn = st.button("Run Telegram Signal Pipeline")
     if run_btn:
@@ -651,6 +654,14 @@ def render_telegram_signal_tab(openai_key: Optional[str]) -> None:
         sentiment_client = OpenAISentimentClient(api_key=openai_key)
         pipeline = TelegramSignalPipeline(fetcher=fetcher, sentiment_client=sentiment_client, learner=learner)
         result = pipeline.run(channels, limit=msg_limit)
+
+        if apply_feedback_now and abs(pnl_feedback) > 1e-9:
+            sources_for_feedback = list({sig.source_type for sig in result["signals"]}) or ["channel"]
+            feedback_objs = [
+                build_feedback_from_pnl(src, pnl_feedback, notional=feedback_notional) for src in sources_for_feedback
+            ]
+            pipeline.learner.apply_feedback(feedback_objs, openai_client=sentiment_client)
+            result["aggregated"] = pipeline.learner.aggregate(result["signals"])
 
         st.session_state["telegram_rl_weights"] = pipeline.learner.weights
         st.session_state["telegram_trading_signals"] = result["aggregated"]
@@ -700,6 +711,13 @@ def render_telegram_signal_tab(openai_key: Optional[str]) -> None:
         if not df_signals.empty:
             st.dataframe(df_signals)
             st.success("Signals stored in session_state['telegram_trading_signals'] for downstream sizing.")
+            if offer_download:
+                st.download_button(
+                    "Download aggregated signals (JSON)",
+                    data=json.dumps(result["aggregated"], indent=2),
+                    file_name="telegram_signals.json",
+                    mime="application/json",
+                )
         else:
             st.warning("No trading signals generated.")
 

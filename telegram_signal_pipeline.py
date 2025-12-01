@@ -470,3 +470,53 @@ class TelegramSignalPipeline:
 
 def build_feedback_from_pnl(source_type: str, pnl: float, notional: float = 1.0) -> SignalFeedback:
     return SignalFeedback(source_type=source_type, realized_pnl=pnl, notional=notional)
+
+
+def _run_cli() -> None:
+    """
+    Small CLI to run the pipeline end-to-end and emit trading signals as JSON.
+
+    Example:
+        python telegram_signal_pipeline.py --channels "alpha_calls,signals" --export-root ./telegram_exports \\
+            --limit 150 --pnl-feedback 120.0 --feedback-notional 500.0
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Telegram scraper -> sentiment -> RL trading signal pipeline.")
+    parser.add_argument("--channels", type=str, required=True, help="Comma-separated channel list (e.g. alpha,signals)")
+    parser.add_argument("--export-root", type=Path, default=DEFAULT_EXPORT_ROOT, help="telegram-scraper export root")
+    parser.add_argument("--limit", type=int, default=200, help="Messages per channel to read")
+    parser.add_argument("--openai-key", type=str, default=None, help="Optional OpenAI API key override")
+    parser.add_argument("--pnl-feedback", type=float, default=None, help="Realised PnL to update RL weights")
+    parser.add_argument("--feedback-notional", type=float, default=1.0, help="Notional size for the feedback PnL")
+    parser.add_argument("--output", type=Path, default=None, help="Optional path to write aggregated signals JSON")
+    args = parser.parse_args()
+
+    channels = [c.strip() for c in args.channels.split(",") if c.strip()]
+    sentiment_client = OpenAISentimentClient(api_key=args.openai_key)
+    learner = ReliabilityLearner()
+    fetcher = TelegramScraperAdapter(export_root=args.export_root)
+    pipeline = TelegramSignalPipeline(fetcher=fetcher, sentiment_client=sentiment_client, learner=learner)
+
+    feedback_objs: List[SignalFeedback] | None = None
+    if args.pnl_feedback is not None:
+        feedback_objs = [build_feedback_from_pnl("channel", args.pnl_feedback, args.feedback_notional)]
+
+    result = pipeline.run(channels, limit=args.limit, feedback=feedback_objs)
+    payload = {
+        "aggregated_signals": result["aggregated"],
+        "weights": result["weights"],
+        "n_messages": len(result["messages"]),
+        "n_signals": len(result["signals"]),
+    }
+
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        print(f"Wrote aggregated signals to {args.output}")
+    else:
+        print(json.dumps(payload, indent=2))
+
+
+if __name__ == "__main__":
+    _run_cli()
