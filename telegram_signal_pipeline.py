@@ -10,6 +10,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
+from urllib.parse import urlparse
 
 
 log = logging.getLogger("telegram-signal-pipeline")
@@ -17,25 +18,6 @@ log = logging.getLogger("telegram-signal-pipeline")
 
 TOKEN_PATTERN = re.compile(r"\$?[A-Za-z]{2,10}")
 DEFAULT_EXPORT_ROOT = Path(__file__).resolve().parent / "telegram_exports"
-SAMPLE_EXPORTS: Dict[str, List[Dict[str, Any]]] = {
-    "GMGN_sol_bot": [
-        {
-            "message_id": 1,
-            "date": "2024-10-01 12:00:00",
-            "message": "Alpha call: Long $BONK here, solid liquidity building.",
-        },
-        {
-            "message_id": 2,
-            "date": "2024-10-01 12:05:00",
-            "message": "Signal: Adding $SOL spot, bullish on network flows.",
-        },
-        {
-            "message_id": 3,
-            "date": "2024-10-01 12:15:00",
-            "message": "Caution on $JUP, taking partial profits.",
-        },
-    ]
-}
 
 
 @dataclass
@@ -103,9 +85,7 @@ class TelegramScraperAdapter:
     def fetch_messages(self, channels: Iterable[str], limit: int = 200) -> List[TelegramMessage]:
         messages: List[TelegramMessage] = []
         for channel in channels:
-            channel = channel.strip()
-            if channel.startswith("@"):
-                channel = channel[1:]
+            channel = self._normalize_channel(channel)
             if not channel:
                 continue
             loaded = self._load_from_exports(channel, limit)
@@ -165,10 +145,6 @@ class TelegramScraperAdapter:
                 ]
             except Exception as exc:  # noqa: BLE001
                 log.warning("Failed to read SQLite export for %s (%s)", channel, exc)
-        # Built-in sample data for quick testing when no exports are present
-        sample = SAMPLE_EXPORTS.get(channel)
-        if sample:
-            return self._convert_records(channel, sample[:limit])
         return []
 
     def _parse_timestamp(self, ts: Any) -> Optional[float]:
@@ -181,6 +157,20 @@ class TelegramScraperAdapter:
                 return float(ts)
             except Exception:
                 return None
+
+    def _normalize_channel(self, raw: str) -> str:
+        channel = (raw or "").strip()
+        if channel.startswith("@"):
+            channel = channel[1:]
+        if channel.startswith("http://") or channel.startswith("https://"):
+            try:
+                parsed = urlparse(channel)
+                parts = parsed.path.strip("/").split("/")
+                if parts:
+                    channel = parts[0]
+            except Exception:
+                pass
+        return channel
 
     def _convert_records(self, channel: str, records: Iterable[Dict[str, Any]]) -> List[TelegramMessage]:
         messages: List[TelegramMessage] = []

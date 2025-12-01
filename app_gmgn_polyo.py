@@ -797,6 +797,15 @@ def render_telegram_signal_tab(openai_key: Optional[str]) -> None:
 
 def main() -> None:
     st.set_page_config(page_title="GMGN + POLYO Playground", layout="wide")
+    st.markdown(
+        """
+        <style>
+        /* Boost tab label font size/weight for clearer subtitles */
+        div[data-baseweb="tab"] button {font-size: 1.05rem !important; font-weight: 600 !important;}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     st.title("GMGN + POLYO Quant Playground")
     st.write("Live GMGN market hooks combined with rough volatility, jump diffusion, Kalman smoothing, HMM regimes, and a tiny RL loop.")
 

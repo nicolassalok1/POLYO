@@ -76,3 +76,23 @@ def test_fetcher_loads_json_exports():
         assert len(messages) == 1
         assert messages[0].text == "Bullish on SOL"
         assert messages[0].channel == channel
+
+
+def test_fetcher_accepts_message_link_and_reads_exports():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        channel = "gmgnsignals"
+        chan_dir = root / channel
+        chan_dir.mkdir(parents=True, exist_ok=True)
+        json_path = chan_dir / f"{channel}.json"
+        sample = [
+            {"message_id": 3993253, "message": "gmgnsignals alpha call: Long $BONK here"},
+            {"message_id": 3993254, "message": "gmgnsignals signal: Adding $SOL spot"},
+        ]
+        json_path.write_text(json.dumps(sample), encoding="utf-8")
+
+        fetcher = TelegramScraperAdapter(export_root=root, api_id=None, api_hash=None)
+        messages = fetcher.fetch_messages(["https://t.me/gmgnsignals/3993253"], limit=5)
+
+        assert len(messages) == 2
+        assert messages[0].channel == channel
