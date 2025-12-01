@@ -1,0 +1,13 @@
+{"token": "ADDING", "score": 0.4883146087532019, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "ALPHA", "score": 0.45360079614530424, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "BONK", "score": 0.44577719991460896, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "BULLISH", "score": 0.46151933153289404, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "CAUTION", "score": 0.47737625492783087, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "LIQUIDITY", "score": 0.42341584426844164, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "LONG", "score": 0.4266855656723751, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "NETWORK", "score": 0.4575968837338633, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "ON", "score": 0.44580234215350545, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "PARTIAL", "score": 0.48992532847575104, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "SOL", "score": 0.4686971686175132, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "SOLID", "score": 0.46260171458241206, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "TAKING", "score": 0.41680906373235194, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}

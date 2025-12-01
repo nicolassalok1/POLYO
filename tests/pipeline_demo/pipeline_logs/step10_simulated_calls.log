@@ -1,0 +1,13 @@
+{"token": "ADDING", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "ALPHA", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "BONK", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "BULLISH", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "CAUTION", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "LIQUIDITY", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "LONG", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "NETWORK", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "ON", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "PARTIAL", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "SOL", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "SOLID", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}
+{"token": "TAKING", "action": "buy", "size": 1.0, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "This is a dry-run; no live order was sent."}

@@ -1,0 +1,13 @@
+{"token": "ADDING", "rough_vol": 0.5800332794678036, "rough_var": 0.0013350738305165678, "rough_skew": 0.011283779620178886}
+{"token": "ALPHA", "rough_vol": 0.58727253363317, "rough_var": 0.0013686072569838205, "rough_skew": 0.2008677736479719}
+{"token": "BONK", "rough_vol": 0.5677902588028237, "rough_var": 0.0012793086428229269, "rough_skew": 0.2782827058923015}
+{"token": "BULLISH", "rough_vol": 0.6079933102845996, "rough_var": 0.0014668883545667672, "rough_skew": 0.13323943141039862}
+{"token": "CAUTION", "rough_vol": 0.5015784339957644, "rough_var": 0.0009983370057525533, "rough_skew": -0.07408199800947135}
+{"token": "LIQUIDITY", "rough_vol": 0.5108304220632909, "rough_var": 0.0010355068258149202, "rough_skew": 0.37165917447403823}
+{"token": "LONG", "rough_vol": 0.47950456586153456, "rough_var": 0.0009123993201668998, "rough_skew": 0.2524616491025585}
+{"token": "NETWORK", "rough_vol": 0.3733018669554002, "rough_var": 0.0005529931899697908, "rough_skew": 0.18677725597075168}
+{"token": "ON", "rough_vol": 0.5153543420481211, "rough_var": 0.0010539289597930627, "rough_skew": 0.27423508000637686}
+{"token": "PARTIAL", "rough_vol": 0.5455021457348631, "rough_var": 0.001180843615084682, "rough_skew": -0.0678592306658656}
+{"token": "SOL", "rough_vol": 0.576818624905396, "rough_var": 0.0013203163731656826, "rough_skew": 0.14467752375491172}
+{"token": "SOLID", "rough_vol": 0.5605557580532862, "rough_var": 0.0012469157058995802, "rough_skew": -0.16554572351897695}
+{"token": "TAKING", "rough_vol": 0.5869825945528464, "rough_var": 0.001367256215507902, "rough_skew": 0.3207330182399322}
