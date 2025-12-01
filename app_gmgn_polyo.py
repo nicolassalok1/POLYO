@@ -12,7 +12,6 @@ import pandas as pd
 import requests
 import streamlit as st
 
-import dummy_gmgn
 import secure_api_key
 from gmgn_client import GMGNSolanaClient, GMGNError
 from telegram_signal_pipeline import (
@@ -114,20 +113,8 @@ def gmgn_or_dummy(endpoint: str, params: dict | None = None, api_key: str = "") 
     limit = params.get("limit", 200)
     mode = "test"
     data: Any = None
-    force_dummy = bool(st.session_state.get("force_dummy_data", False))
 
-    if not api_key or force_dummy:
-        if endpoint == "new_pairs":
-            data = dummy_gmgn.get_dummy_new_pairs()
-        elif endpoint == "token_info":
-            data = dummy_gmgn.get_dummy_token_info(token or "")
-        elif endpoint == "trades":
-            data = dummy_gmgn.get_dummy_trades(token or "")
-        elif endpoint == "price_series":
-            data = dummy_gmgn.get_dummy_price_series(limit)
-        else:
-            data = {}
-    else:
+    if api_key:
         live_data: Any = None
         if endpoint == "new_pairs":
             live_data = gmgn_request("/pairs/new", api_key=api_key, base_url=base_url)
@@ -168,16 +155,10 @@ def gmgn_or_dummy(endpoint: str, params: dict | None = None, api_key: str = "") 
             data = live_data
         else:
             mode = "test"
-            if endpoint == "new_pairs":
-                data = dummy_gmgn.get_dummy_new_pairs()
-            elif endpoint == "token_info":
-                data = dummy_gmgn.get_dummy_token_info(token or "")
-            elif endpoint == "trades":
-                data = dummy_gmgn.get_dummy_trades(token or "")
-            elif endpoint == "price_series":
-                data = dummy_gmgn.get_dummy_price_series(limit)
-            else:
-                data = {}
+            data = {}
+    else:
+        mode = "test"
+        data = {}
 
     st.session_state["gmgn_mode"] = mode
     return {"mode": mode, "data": data}
@@ -1087,8 +1068,6 @@ def main() -> None:
     base_url = st.sidebar.text_input("GMGN base URL", value=DEFAULT_BASE_URL)
     openai_default = os.getenv("OPENAI_API_KEY", "")
     openai_key_input = st.sidebar.text_input("OpenAI API key (sentiment/RL)", value=openai_default, type="password")
-    force_dummy = st.sidebar.checkbox("Force dummy data (skip GMGN API)", value=bool(st.session_state.get("force_dummy_data", False)))
-    st.session_state["force_dummy_data"] = force_dummy
     save_btn = st.sidebar.button("Save API Key Securely")
     clear_btn = st.sidebar.button("Clear API Key")
 
@@ -1112,7 +1091,7 @@ def main() -> None:
     else:
         st.sidebar.warning("No API key stored.")
 
-    effective_key = "" if force_dummy else (api_key_input or stored_key or "")
+    effective_key = api_key_input or stored_key or ""
     mode_status = "test"
     if effective_key:
         probe = gmgn_or_dummy("new_pairs", {"limit": 5, "base_url": base_url}, effective_key)
@@ -1120,10 +1099,7 @@ def main() -> None:
     else:
         st.session_state["gmgn_mode"] = "test"
 
-    if force_dummy:
-        st.sidebar.markdown("### MODE: TEST (Forced Dummy)")
-        st.sidebar.warning("Dummy data forced; GMGN API calls are skipped.")
-    elif mode_status == "live":
+    if mode_status == "live":
         st.sidebar.markdown("### MODE: LIVE (GMGN API)")
         st.sidebar.success("Using real-time GMGN data.")
     else:
