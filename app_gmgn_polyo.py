@@ -112,8 +112,9 @@ def gmgn_or_dummy(endpoint: str, params: dict | None = None, api_key: str = "") 
     limit = params.get("limit", 200)
     mode = "test"
     data: Any = None
+    force_dummy = bool(st.session_state.get("force_dummy_data", False))
 
-    if not api_key:
+    if not api_key or force_dummy:
         if endpoint == "new_pairs":
             data = dummy_gmgn.get_dummy_new_pairs()
         elif endpoint == "token_info":
@@ -718,6 +719,22 @@ def render_telegram_signal_tab(openai_key: Optional[str]) -> None:
                     file_name="telegram_signals.json",
                     mime="application/json",
                 )
+            token_list = [row["token"] for row in result["aggregated"] if row.get("token")]
+            if token_list:
+                default_tok = st.session_state.get("telegram_selected_token") or token_list[0]
+                if default_tok not in token_list:
+                    default_tok = token_list[0]
+                selected_tok = st.selectbox(
+                    "Choisir un token pour l'injecter dans les autres modules GMGN/RL",
+                    token_list,
+                    index=token_list.index(default_tok),
+                )
+                st.session_state["telegram_selected_token"] = selected_tok
+                if st.button("Envoyer ce token vers les modules GMGN/RL"):
+                    st.session_state["token_snapshot_input"] = selected_tok
+                    st.session_state["overlay_input"] = selected_tok
+                    st.session_state["rl_token_input"] = selected_tok
+                    st.success("Token injecté dans les champs GMGN/RL (snapshots, overlay, RL demo).")
         else:
             st.warning("No trading signals generated.")
 
@@ -769,6 +786,8 @@ def main() -> None:
     base_url = st.sidebar.text_input("GMGN base URL", value=DEFAULT_BASE_URL)
     openai_default = os.getenv("OPENAI_API_KEY", "")
     openai_key_input = st.sidebar.text_input("OpenAI API key (sentiment/RL)", value=openai_default, type="password")
+    force_dummy = st.sidebar.checkbox("Force dummy data (skip GMGN API)", value=bool(st.session_state.get("force_dummy_data", False)))
+    st.session_state["force_dummy_data"] = force_dummy
     save_btn = st.sidebar.button("Save API Key Securely")
     clear_btn = st.sidebar.button("Clear API Key")
 
@@ -792,7 +811,7 @@ def main() -> None:
     else:
         st.sidebar.warning("No API key stored.")
 
-    effective_key = api_key_input or stored_key or ""
+    effective_key = "" if force_dummy else (api_key_input or stored_key or "")
     mode_status = "test"
     if effective_key:
         probe = gmgn_or_dummy("new_pairs", {"limit": 5, "base_url": base_url}, effective_key)
@@ -800,7 +819,10 @@ def main() -> None:
     else:
         st.session_state["gmgn_mode"] = "test"
 
-    if mode_status == "live":
+    if force_dummy:
+        st.sidebar.markdown("### MODE: TEST (Forced Dummy)")
+        st.sidebar.warning("Dummy data forced; GMGN API calls are skipped.")
+    elif mode_status == "live":
         st.sidebar.markdown("### MODE: LIVE (GMGN API)")
         st.sidebar.success("Using real-time GMGN data.")
     else:
