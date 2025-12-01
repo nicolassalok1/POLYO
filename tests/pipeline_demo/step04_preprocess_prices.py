@@ -18,25 +18,26 @@ from pipeline_paths import dump_jsonl, load_jsonl, log_path
 def setup_logger() -> logging.Logger:
     logger = logging.getLogger("step04_preprocess_prices")
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
+        logger.addHandler(handler)
     return logger
 
 
 def preprocess(row: Dict[str, Any]) -> Dict[str, Any]:
     prices = row.get("prices") or []
-    if not prices:
+    if not prices or len(prices) < 2:
         prices = [1.0, 1.01, 0.99, 1.02]
     arr = np.array(prices, dtype=float)
     returns = np.diff(arr) / arr[:-1]
     return {
         "token": row.get("token"),
-        "prices": prices,
+        "prices": arr.tolist(),
         "returns": returns.tolist(),
         "liquidity": row.get("liquidity"),
         "volume": row.get("volume"),
-        "mode": row.get("mode", "test"),
+        "mode": row.get("mode", "stub"),
     }
 
 
@@ -49,7 +50,7 @@ def main() -> None:
     logger = setup_logger()
     gmgn_rows = load_jsonl(args.input)
     if not gmgn_rows:
-        logger.warning("No GMGN data found at %s", args.input)
+        logger.error("No GMGN data found at %s", args.input)
         return
 
     processed: List[Dict[str, Any]] = [preprocess(r) for r in gmgn_rows if r.get("token")]

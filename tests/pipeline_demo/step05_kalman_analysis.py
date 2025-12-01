@@ -23,9 +23,10 @@ except Exception:
 def setup_logger() -> logging.Logger:
     logger = logging.getLogger("step05_kalman")
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
+        logger.addHandler(handler)
     return logger
 
 
@@ -55,7 +56,7 @@ def main() -> None:
     logger = setup_logger()
     rows = load_jsonl(args.input)
     if not rows:
-        logger.warning("No preprocessed data at %s", args.input)
+        logger.error("No preprocessed data at %s", args.input)
         return
     out: List[Dict[str, Any]] = [analyze(r) for r in rows]
     dump_jsonl(args.output, out)

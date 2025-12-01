@@ -1,13 +1,21 @@
-{"token": "ADDING", "score": 0.4842438167203165, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "ALPHA", "score": 0.4581894292380634, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "BONK", "score": 0.4717839442068577, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "BULLISH", "score": 0.4871906190565688, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "CAUTION", "score": 0.4812512894179834, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "LIQUIDITY", "score": 0.48632694394515585, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "LONG", "score": 0.4742268783202554, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "NETWORK", "score": 0.47578249703697595, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "ON", "score": 0.48161507794688146, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "PARTIAL", "score": 0.46968250105296294, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "SOL", "score": 0.45083539103027437, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "SOLID", "score": 0.4700104140808322, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
-{"token": "TAKING", "score": 0.44580441409653254, "action": "buy", "size": 1.0, "reason": "rule-based RL proxy (no live trading)"}
+{"token": "ADDING", "action": "BUY", "confidence": 0.35394535377790587, "recommended_notional": 85.39, "reasoning": "score=0.354 from sentiment/kalman/jump"}
+{"token": "ALPHA", "action": "BUY", "confidence": 0.3704510979211718, "recommended_notional": 87.05, "reasoning": "score=0.370 from sentiment/kalman/jump"}
+{"token": "BONK", "action": "BUY", "confidence": 0.42503002819797564, "recommended_notional": 92.5, "reasoning": "score=0.425 from sentiment/kalman/jump"}
+{"token": "BUILDING", "action": "BUY", "confidence": 0.35449171737522617, "recommended_notional": 85.45, "reasoning": "score=0.354 from sentiment/kalman/jump"}
+{"token": "BULLISH", "action": "BUY", "confidence": 0.3665591202090003, "recommended_notional": 86.66, "reasoning": "score=0.367 from sentiment/kalman/jump"}
+{"token": "CALL", "action": "BUY", "confidence": 0.4115831789918467, "recommended_notional": 91.16, "reasoning": "score=0.412 from sentiment/kalman/jump"}
+{"token": "CAUTION", "action": "BUY", "confidence": 0.125893633449106, "recommended_notional": 62.59, "reasoning": "score=0.126 from sentiment/kalman/jump"}
+{"token": "FLOWS", "action": "BUY", "confidence": 0.3692640439277774, "recommended_notional": 86.93, "reasoning": "score=0.369 from sentiment/kalman/jump"}
+{"token": "HERE", "action": "BUY", "confidence": 0.3466843693909931, "recommended_notional": 84.67, "reasoning": "score=0.347 from sentiment/kalman/jump"}
+{"token": "JUP", "action": "AVOID", "confidence": 0.08834248738107961, "recommended_notional": 58.83, "reasoning": "score=0.088 from sentiment/kalman/jump"}
+{"token": "LIQUIDITY", "action": "BUY", "confidence": 0.3627949938022354, "recommended_notional": 86.28, "reasoning": "score=0.363 from sentiment/kalman/jump"}
+{"token": "LONG", "action": "BUY", "confidence": 0.3985398326072599, "recommended_notional": 89.85, "reasoning": "score=0.399 from sentiment/kalman/jump"}
+{"token": "NETWORK", "action": "BUY", "confidence": 0.40457676946906235, "recommended_notional": 90.46, "reasoning": "score=0.405 from sentiment/kalman/jump"}
+{"token": "ON", "action": "BUY", "confidence": 0.2763572278321557, "recommended_notional": 77.64, "reasoning": "score=0.276 from sentiment/kalman/jump"}
+{"token": "PARTIAL", "action": "AVOID", "confidence": 0.06324748458778803, "recommended_notional": 56.32, "reasoning": "score=0.063 from sentiment/kalman/jump"}
+{"token": "PROFITS", "action": "AVOID", "confidence": 0.06396382856176148, "recommended_notional": 56.4, "reasoning": "score=0.064 from sentiment/kalman/jump"}
+{"token": "SIGNAL", "action": "BUY", "confidence": 0.3695428006638653, "recommended_notional": 86.95, "reasoning": "score=0.370 from sentiment/kalman/jump"}
+{"token": "SOL", "action": "BUY", "confidence": 0.41868628542997344, "recommended_notional": 91.87, "reasoning": "score=0.419 from sentiment/kalman/jump"}
+{"token": "SOLID", "action": "BUY", "confidence": 0.4057716149356362, "recommended_notional": 90.58, "reasoning": "score=0.406 from sentiment/kalman/jump"}
+{"token": "SPOT", "action": "BUY", "confidence": 0.4050110406319387, "recommended_notional": 90.5, "reasoning": "score=0.405 from sentiment/kalman/jump"}
+{"token": "TAKING", "action": "BUY", "confidence": 0.1185203288836268, "recommended_notional": 61.85, "reasoning": "score=0.119 from sentiment/kalman/jump"}

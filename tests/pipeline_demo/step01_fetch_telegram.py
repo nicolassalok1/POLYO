@@ -21,9 +21,10 @@ except Exception:
 def setup_logger() -> logging.Logger:
     logger = logging.getLogger("step01_fetch_telegram")
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
+        logger.addHandler(handler)
     return logger
 
 
@@ -49,6 +50,7 @@ def fetch_messages(channel: str, limit: int, export_root: Path | None, logger: l
             "message_id": m.message_id,
             "text": m.text,
             "timestamp": m.timestamp,
+            "sender": getattr(m, "sender", None) or getattr(m, "source", None) or m.channel,
             "source_type": m.source_type,
         }
         for m in msgs
@@ -62,6 +64,7 @@ def _dummy_messages(channel: str, limit: int) -> List[Dict[str, Any]]:
             "message_id": idx + 1,
             "text": txt,
             "timestamp": None,
+            "sender": "dummy_sender",
             "source_type": "channel",
         }
         for idx, txt in enumerate(

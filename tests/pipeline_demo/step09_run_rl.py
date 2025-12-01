@@ -16,29 +16,46 @@ from pipeline_paths import dump_jsonl, load_jsonl, log_path
 def setup_logger() -> logging.Logger:
     logger = logging.getLogger("step09_rl")
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
+        logger.addHandler(handler)
     return logger
 
 
-def score_token(features: Dict[str, Any]) -> float:
-    score = 0.0
-    kal = features.get("kalman") or {}
-    jd = features.get("jumpdiff") or {}
-    rb = features.get("rbergomi") or {}
-    if kal:
-        score += 0.5 * float(kal.get("kalman_last") or 0.0)
-    if jd:
-        score += 1.0 * float(jd.get("mean_return") or 0.0)
-        score -= 0.3 * float(jd.get("std_return") or 0.0)
-    if rb:
-        score -= 0.2 * abs(float(rb.get("rough_skew") or 0.0))
-    return score
+def decide_action(feat: Dict[str, Any]) -> Dict[str, Any]:
+    sentiment = float(feat.get("sentiment_score") or 0.0)
+    kal_last = feat.get("kalman_last")
+    jump_std = feat.get("jump_std")
+
+    score = sentiment
+    if kal_last is not None:
+        score += 0.1 * float(kal_last)
+    if jump_std is not None:
+        score -= 0.2 * float(jump_std)
+
+    if score > 0.1:
+        action = "BUY"
+    elif score < -0.1:
+        action = "SELL"
+    else:
+        action = "AVOID"
+
+    confidence = min(1.0, max(0.0, abs(score)))
+    notional = round(100 * (0.5 + confidence), 2)
+    reasoning = f"score={score:.3f} from sentiment/kalman/jump"
+
+    return {
+        "token": feat.get("token"),
+        "action": action,
+        "confidence": confidence,
+        "recommended_notional": notional,
+        "reasoning": reasoning,
+    }
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run a simple RL-style scoring and emit trading orders.")
+    parser = argparse.ArgumentParser(description="Run a simple RL-style decisioning and emit trading orders.")
     parser.add_argument("--input", type=Path, default=log_path("step08_combined_features.log"))
     parser.add_argument("--output", type=Path, default=log_path("step09_orders.log"))
     args = parser.parse_args()
@@ -46,24 +63,10 @@ def main() -> None:
     logger = setup_logger()
     combined = load_jsonl(args.input)
     if not combined:
-        logger.warning("No combined features at %s", args.input)
+        logger.error("No combined features at %s", args.input)
         return
 
-    orders: List[Dict[str, Any]] = []
-    for feat in combined:
-        tok = feat.get("token")
-        sc = score_token(feat)
-        action = "buy" if sc > 0 else "sell" if sc < 0 else "hold"
-        orders.append(
-            {
-                "token": tok,
-                "score": sc,
-                "action": action,
-                "size": 1.0,
-                "reason": "rule-based RL proxy (no live trading)",
-            }
-        )
-
+    orders: List[Dict[str, Any]] = [decide_action(f) for f in combined if f.get("token")]
     dump_jsonl(args.output, orders)
     logger.info("Wrote %d orders to %s", len(orders), args.output)
 

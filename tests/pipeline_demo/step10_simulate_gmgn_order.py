@@ -16,9 +16,10 @@ from pipeline_paths import dump_jsonl, load_jsonl, log_path
 def setup_logger() -> logging.Logger:
     logger = logging.getLogger("step10_simulate_gmgn")
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
+        logger.addHandler(handler)
     return logger
 
 
@@ -31,7 +32,7 @@ def main() -> None:
     logger = setup_logger()
     orders: List[Dict[str, Any]] = load_jsonl(args.input)
     if not orders:
-        logger.warning("No orders found at %s", args.input)
+        logger.error("No orders found at %s", args.input)
         return
 
     simulated: List[Dict[str, Any]] = []
@@ -40,10 +41,10 @@ def main() -> None:
             {
                 "token": order.get("token"),
                 "action": order.get("action"),
-                "size": order.get("size"),
+                "size": order.get("recommended_notional"),
                 "status": "simulated",
                 "api_endpoint": "/token/order/simulated",
-                "notes": "This is a dry-run; no live order was sent.",
+                "notes": "Dry-run; no live order sent.",
             }
         )
 
