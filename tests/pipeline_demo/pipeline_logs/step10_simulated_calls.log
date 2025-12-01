@@ -1,0 +1,1 @@
+{"token": "$BONK", "action": "BUY", "size": 134.02, "status": "simulated", "api_endpoint": "/token/order/simulated", "notes": "Dry-run; no live order sent."}

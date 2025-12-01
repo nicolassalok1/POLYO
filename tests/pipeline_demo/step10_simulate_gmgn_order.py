@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pipeline_paths import dump_jsonl, load_with_fallback, log_path, ensure_empty, clear_logs
+from pipeline_paths import dump_jsonl, load_with_fallback, log_path, ensure_empty
 
 
 def setup_logger() -> logging.Logger:
@@ -54,10 +54,6 @@ def main() -> None:
     except Exception as exc:
         logger.error("ERROR: step10 failed (%s). Leaving log empty.", exc)
         ensure_empty(out_path)
-    finally:
-        # Clear all .log files at the end; emptiness signals fallback usage.
-        clear_logs()
-        logger.info("Cleared all pipeline log files (indicator of fallback usage).")
 
 
 if __name__ == "__main__":

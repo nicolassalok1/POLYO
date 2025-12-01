@@ -1,0 +1,1 @@
+{"token": "$BONK", "action": "BUY", "confidence": 0.8401730251220968, "recommended_notional": 134.02, "reasoning": "score=0.840 from sentiment/kalman/jump"}
