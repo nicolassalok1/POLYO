@@ -29,23 +29,33 @@ def setup_logger() -> logging.Logger:
 
 def fetch_messages(channel: str, limit: int, export_root: Path | None, logger: logging.Logger) -> List[Dict[str, Any]]:
     channel = channel.lstrip("@").strip()
-    adapter = TelegramScraperAdapter(export_root=export_root) if TelegramScraperAdapter else None
-    if adapter:
-        try:
-            msgs = adapter.fetch_messages([channel], limit=limit)
-            return [
-                {
-                    "channel": m.channel,
-                    "message_id": m.message_id,
-                    "text": m.text,
-                    "timestamp": m.timestamp,
-                    "source_type": m.source_type,
-                }
-                for m in msgs
-            ]
-        except Exception as exc:
-            logger.warning("Failed to fetch via adapter (%s). Falling back to sample.", exc)
+    if not TelegramScraperAdapter:
+        logger.error("TelegramScraperAdapter unavailable (missing dependency). Using dummy messages.")
+        return _dummy_messages(channel, limit)
 
+    try:
+        msgs = TelegramScraperAdapter(export_root=export_root).fetch_messages([channel], limit=limit)
+    except Exception as exc:
+        logger.error("ERROR: fetch failed for %s (%s); using dummy messages.", channel or "<empty>", exc)
+        return _dummy_messages(channel, limit)
+
+    if not msgs:
+        logger.error("ERROR: no messages fetched for channel '%s'; using dummy messages.", channel)
+        return _dummy_messages(channel, limit)
+
+    return [
+        {
+            "channel": m.channel,
+            "message_id": m.message_id,
+            "text": m.text,
+            "timestamp": m.timestamp,
+            "source_type": m.source_type,
+        }
+        for m in msgs
+    ]
+
+
+def _dummy_messages(channel: str, limit: int) -> List[Dict[str, Any]]:
     sample = [
         {
             "channel": channel or "sample_channel",
@@ -62,7 +72,6 @@ def fetch_messages(channel: str, limit: int, export_root: Path | None, logger: l
             ]
         )
     ]
-    logger.info("Using fallback sample messages (%d rows).", len(sample))
     return sample[:limit]
 
 
