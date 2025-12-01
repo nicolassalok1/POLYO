@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import logging
-import random
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Set
@@ -24,18 +23,6 @@ def setup_logger() -> logging.Logger:
     return logger
 
 
-def make_stub_gmgn(token: str) -> Dict[str, Any]:
-    base = random.uniform(0.5, 2.0)
-    prices = [round(base * (1 + random.uniform(-0.03, 0.03)), 6) for _ in range(60)]
-    return {
-        "token": token,
-        "prices": prices,
-        "volume": round(random.uniform(1_000, 10_000), 2),
-        "liquidity": round(random.uniform(20_000, 100_000), 2),
-        "mode": "stub",
-    }
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fetch GMGN data for tokens from sentiment output.")
     parser.add_argument("--input", type=Path, default=log_path("step02_sentiment.log"))
@@ -55,9 +42,11 @@ def main() -> None:
             ensure_empty(out_path)
             return
 
-        rows: List[Dict[str, Any]] = [make_stub_gmgn(tok) for tok in sorted(tokens)]
-        dump_jsonl(out_path, rows)
-        logger.info("Wrote GMGN stub data for %d tokens to %s", len(rows), out_path)
+        rows: List[Dict[str, Any]] = []
+        if not rows:
+            logger.error("GMGN fetch is not implemented here; leaving output empty.")
+            ensure_empty(out_path)
+            return
     except Exception as exc:
         logger.error("ERROR: step03 failed (%s). Leaving log empty.", exc)
         ensure_empty(out_path)

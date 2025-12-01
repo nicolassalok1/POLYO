@@ -29,6 +29,7 @@ def setup_logger() -> logging.Logger:
 
 
 def fetch_messages(channel: str, limit: int, export_root: Path | None, logger: logging.Logger) -> List[Dict[str, Any]]:
+    channel = channel.lstrip("@").strip()
     if TelegramScraperAdapter:
         try:
             msgs = TelegramScraperAdapter(export_root=export_root).fetch_messages([channel], limit=limit)
@@ -45,26 +46,8 @@ def fetch_messages(channel: str, limit: int, export_root: Path | None, logger: l
                     for m in msgs
                 ]
         except Exception as exc:
-            logger.error("ERROR: fetch failed for %s (%s); falling back to dummy messages.", channel or "<empty>", exc)
-
-    # Dummy fallback content
-    sample = [
-        {
-            "channel": channel or "fallback_channel",
-            "message_id": idx + 1,
-            "text": txt,
-            "timestamp": None,
-            "sender": "fallback_sender",
-            "source_type": "channel",
-        }
-        for idx, txt in enumerate(
-            [
-                "Alpha call: Long $BONK here, solid liquidity building.",
-                "Signal: Adding $SOL spot, bullish on network flows.",
-            ]
-        )
-    ]
-    return sample[:limit]
+            logger.error("ERROR: fetch failed for %s (%s).", channel or "<empty>", exc)
+    return []
 
 
 def main() -> None:
@@ -79,8 +62,12 @@ def main() -> None:
 
     try:
         messages = fetch_messages(args.channel, args.limit, args.export_root, logger)
-        dump_jsonl(out_path, messages)
-        logger.info("Wrote %d messages to %s", len(messages), out_path)
+        if not messages:
+            ensure_empty(out_path)
+            logger.warning("No messages captured; log left empty.")
+        else:
+            dump_jsonl(out_path, messages)
+            logger.info("Wrote %d messages to %s", len(messages), out_path)
     except Exception as exc:
         logger.error("ERROR: step01 failed (%s). Leaving log empty.", exc)
         ensure_empty(out_path)

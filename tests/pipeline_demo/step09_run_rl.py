@@ -11,7 +11,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline_paths import dump_jsonl, load_with_fallback, log_path, ensure_empty
-from trade_order_schema import TradeOrder, build_dummy_trade_order
+from trade_order_schema import TradeOrder
 
 
 def setup_logger() -> logging.Logger:
@@ -24,9 +24,9 @@ def setup_logger() -> logging.Logger:
     return logger
 
 
-def decide_action(feat: Dict[str, Any]) -> TradeOrder:
-    # Placeholder: build a dummy TradeOrder. In a real RL, map feat to size/side/etc.
-    return build_dummy_trade_order()
+def decide_action(feat: Dict[str, Any]) -> TradeOrder | None:
+    # If there is no real RL mapping, return None to avoid emitting dummy orders.
+    return None
 
 
 def main() -> None:
@@ -48,10 +48,15 @@ def main() -> None:
         for feat in combined:
             if feat.get("token"):
                 order = decide_action(feat)
-                orders.append(order.to_dict())
+                if order:
+                    orders.append(order.to_dict())
 
-        dump_jsonl(out_path, orders)
-        logger.info("Wrote %d orders to %s", len(orders), out_path)
+        if not orders:
+            logger.warning("No orders produced; leaving output empty.")
+            ensure_empty(out_path)
+        else:
+            dump_jsonl(out_path, orders)
+            logger.info("Wrote %d orders to %s", len(orders), out_path)
     except Exception as exc:
         logger.error("ERROR: step09 failed (%s). Leaving log empty.", exc)
         ensure_empty(out_path)

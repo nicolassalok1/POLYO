@@ -1,1 +1,0 @@
-{"token": "$BONK", "sentiment_score": 0.8, "sentiment_confidence": 0.8, "kalman_last": 0.6403713333333334, "jump_mean": 9.638272635694483e-05, "jump_std": 0.023966064914941954, "jump_count": 2, "rough_vol": 0.38044948601860057, "rough_var": 0.0005743722675072118, "rough_skew": 0.0038030939426900766}

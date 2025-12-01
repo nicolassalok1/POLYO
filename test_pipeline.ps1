@@ -19,7 +19,7 @@ function Invoke-Step {
     } elseif ($LASTEXITCODE -ne 0 -and $hasContent) {
         Write-Warning "STATUS [$LogName]: WARNING (step failed but log has content; downstream may use fallback)."
     } else {
-        Write-Error "STATUS [$LogName]: ERROR (log empty or step failed); downstream will use fallback."
+        Write-Warning "STATUS [$LogName]: WARNING (log empty or step failed); fallback (if any) will be used downstream."
     }
 }
 
