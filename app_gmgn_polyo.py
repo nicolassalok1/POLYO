@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -795,6 +796,158 @@ def render_telegram_signal_tab(openai_key: Optional[str]) -> None:
         st.success("Weights updated with feedback; rerun the pipeline to see the impact.")
 
 
+def render_pipeline_tests() -> None:
+    st.header("Pipeline Demo Tests")
+    st.caption("Run each test module manually. If a step fails or its log is empty, downstream steps will use the constant fallback files.")
+
+    pipeline_dir = ROOT / "tests" / "pipeline_demo"
+    log_dir = pipeline_dir / "pipeline_logs"
+    tg_input_default = "https://t.me/gmgnsignals/3993253"
+    tg_input = st.text_input("Telegram channel/link for step 01", value=tg_input_default, key="pipeline_demo_channel")
+    st.info("Les logs sont éditables ici. Si un log est non vide, il sera utilisé par le test suivant. Les champs sont vides par défaut à l'affichage.")
+
+    def read_text(path: Path) -> str:
+        if not path.exists():
+            return ""
+        try:
+            return path.read_text(encoding="utf-8")
+        except Exception:
+            return ""
+
+    steps = [
+        {
+            "label": "Step 01 - Fetch Telegram",
+            "script": "step01_fetch_telegram.py",
+            "log": "step01_telegram_messages.log",
+            "fallback": "step01_telegram_messages_fallback.jsonl",
+            "args_fn": lambda: ["--channel", tg_input or tg_input_default, "--limit", "1"],
+        },
+        {
+            "label": "Step 02 - Sentiment OpenAI",
+            "script": "step02_sentiment_openai.py",
+            "log": "step02_sentiment.log",
+            "fallback": "step02_sentiment_fallback.jsonl",
+            "args_fn": lambda: [],
+        },
+        {
+            "label": "Step 03 - Fetch GMGN",
+            "script": "step03_fetch_gmgn.py",
+            "log": "step03_gmgn_data.log",
+            "fallback": "step03_gmgn_data_fallback.jsonl",
+            "args_fn": lambda: [],
+        },
+        {
+            "label": "Step 04 - Preprocess Prices",
+            "script": "step04_preprocess_prices.py",
+            "log": "step04_preprocessed.log",
+            "fallback": "step04_preprocessed_fallback.jsonl",
+            "args_fn": lambda: [],
+        },
+        {
+            "label": "Step 05 - Kalman",
+            "script": "step05_kalman_analysis.py",
+            "log": "step05_kalman.log",
+            "fallback": "step05_kalman_fallback.jsonl",
+            "args_fn": lambda: [],
+        },
+        {
+            "label": "Step 06 - JumpDiff",
+            "script": "step06_jumpdiff_analysis.py",
+            "log": "step06_jumpdiff.log",
+            "fallback": "step06_jumpdiff_fallback.jsonl",
+            "args_fn": lambda: [],
+        },
+        {
+            "label": "Step 07 - rBergomi",
+            "script": "step07_rbergomi_analysis.py",
+            "log": "step07_rbergomi.log",
+            "fallback": "step07_rbergomi_fallback.jsonl",
+            "args_fn": lambda: [],
+        },
+        {
+            "label": "Step 08 - Combine Features",
+            "script": "step08_combine_features.py",
+            "log": "step08_combined_features.log",
+            "fallback": "step08_combined_features_fallback.jsonl",
+            "args_fn": lambda: [],
+        },
+        {
+            "label": "Step 09 - Run RL",
+            "script": "step09_run_rl.py",
+            "log": "step09_orders.log",
+            "fallback": "step09_orders_fallback.jsonl",
+            "args_fn": lambda: [],
+        },
+        {
+            "label": "Step 10 - Simulate GMGN Order",
+            "script": "step10_simulate_gmgn_order.py",
+            "log": "step10_simulated_calls.log",
+            "fallback": "step10_simulated_calls.log",  # uses same name for log; no fallback file specified
+            "args_fn": lambda: [],
+        },
+    ]
+
+    for step in steps:
+        st.subheader(step["label"])
+        cols = st.columns(2)
+        with cols[0]:
+            st.markdown("**Fallback (placeholder input)**")
+            fb_path = pipeline_dir / step["fallback"]
+            st.text_area(
+                "Fallback content",
+                value=read_text(fb_path),
+                height=200,
+                key=f"{step['label']}_fb",
+                disabled=True,
+            )
+        with cols[1]:
+            st.markdown("**Current log output**")
+            log_path = log_dir / step["log"]
+            log_key = f"{step['label']}_log_edit"
+            if log_key not in st.session_state:
+                st.session_state[log_key] = ""
+            cols_log = st.columns(3)
+            with cols_log[0]:
+                if st.button("Charger log", key=f"{step['label']}_load"):
+                    st.session_state[log_key] = read_text(log_path)
+            with cols_log[1]:
+                if st.button("Vider log", key=f"{step['label']}_clear"):
+                    st.session_state[log_key] = ""
+            with cols_log[2]:
+                if st.button("Sauver log", key=f"{step['label']}_save"):
+                    log_path.parent.mkdir(parents=True, exist_ok=True)
+                    log_path.write_text(st.session_state[log_key], encoding="utf-8")
+                    st.success("Log sauvegardé.")
+
+            st.text_area(
+                "Log content (éditable, utilisé si non vide)",
+                value=st.session_state[log_key],
+                height=200,
+                key=log_key,
+            )
+
+            run_btn = st.button(f"Run {step['label']}", key=f"{step['label']}_run")
+            if run_btn:
+                script_path = pipeline_dir / step["script"]
+                args = step.get("args_fn", lambda: [])()
+                cmd = [sys.executable, str(script_path)] + args
+                try:
+                    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+                    has_content = log_path.exists() and log_path.stat().st_size > 0
+                    if result.returncode == 0 and has_content:
+                        st.success("SUCCESS (log updated).")
+                    elif result.returncode != 0 and has_content:
+                        st.warning(f"WARNING: return code {result.returncode} (log has content; fallback logic may be used).")
+                    else:
+                        st.error(f"ERROR: return code {result.returncode} and log empty; downstream will use fallback.")
+                    if result.stdout:
+                        st.code(result.stdout, language="text")
+                    if result.stderr:
+                        st.code(result.stderr, language="text")
+                except Exception as exc:
+                    st.error(f"Failed to run step: {exc}")
+
+
 def main() -> None:
     st.set_page_config(page_title="GMGN + POLYO Playground", layout="wide")
     st.markdown(
@@ -876,13 +1029,14 @@ def main() -> None:
             st.sidebar.markdown("### MODE: TEST (Dummy Data)")
             st.sidebar.info("No API key; using dummy data.")
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
         [
             "GMGN Live Market",
             "Quant Pipeline (Synthetic)",
             "GMGN + Quant Overlay",
             "RL Shitcoin Demo",
             "Telegram Signals (RL)",
+            "Pipeline Demo Tests",
         ]
     )
 
@@ -896,6 +1050,8 @@ def main() -> None:
         render_rl_demo(effective_key, base_url, config)
     with tab5:
         render_telegram_signal_tab(openai_key_input or None)
+    with tab6:
+        render_pipeline_tests()
 
 
 if __name__ == "__main__":
