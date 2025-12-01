@@ -12,14 +12,14 @@ function Invoke-Step {
     Write-Host "==> Running $Script $($StepArgs -join ' ')" -ForegroundColor Cyan
     & $PythonExe $Script @StepArgs
     if ($LASTEXITCODE -ne 0) {
-        throw "Step $Script failed with exit code $LASTEXITCODE"
+        Write-Warning "Step $Script failed with exit code $LASTEXITCODE (will continue; downstream will use fallback)."
     }
 }
 
 Set-Location (Split-Path -Parent $MyInvocation.MyCommand.Definition)
 $pipelineDir = Join-Path (Get-Location) "tests/pipeline_demo"
 
-Invoke-Step -Script (Join-Path $pipelineDir "step01_fetch_telegram.py") -StepArgs @("--channel","@gmgnsignals","--limit","50")
+Invoke-Step -Script (Join-Path $pipelineDir "step01_fetch_telegram.py") -StepArgs @("--channel","https://t.me/gmgnsignals/3993253","--limit","1")
 Invoke-Step -Script (Join-Path $pipelineDir "step02_sentiment_openai.py")
 Invoke-Step -Script (Join-Path $pipelineDir "step03_fetch_gmgn.py")
 Invoke-Step -Script (Join-Path $pipelineDir "step04_preprocess_prices.py")

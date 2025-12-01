@@ -29,7 +29,6 @@ def setup_logger() -> logging.Logger:
 
 
 def fetch_messages(channel: str, limit: int, export_root: Path | None, logger: logging.Logger) -> List[Dict[str, Any]]:
-    channel = channel.lstrip("@").strip()
     if TelegramScraperAdapter:
         try:
             msgs = TelegramScraperAdapter(export_root=export_root).fetch_messages([channel], limit=limit)
