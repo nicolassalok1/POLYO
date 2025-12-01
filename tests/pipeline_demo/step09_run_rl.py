@@ -11,6 +11,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline_paths import dump_jsonl, load_with_fallback, log_path, ensure_empty
+from trade_order_schema import TradeOrder, build_dummy_trade_order
 
 
 def setup_logger() -> logging.Logger:
@@ -23,35 +24,9 @@ def setup_logger() -> logging.Logger:
     return logger
 
 
-def decide_action(feat: Dict[str, Any]) -> Dict[str, Any]:
-    sentiment = float(feat.get("sentiment_score") or 0.0)
-    kal_last = feat.get("kalman_last")
-    jump_std = feat.get("jump_std")
-
-    score = sentiment
-    if kal_last is not None:
-        score += 0.1 * float(kal_last)
-    if jump_std is not None:
-        score -= 0.2 * float(jump_std)
-
-    if score > 0.1:
-        action = "BUY"
-    elif score < -0.1:
-        action = "SELL"
-    else:
-        action = "AVOID"
-
-    confidence = min(1.0, max(0.0, abs(score)))
-    notional = round(100 * (0.5 + confidence), 2)
-    reasoning = f"score={score:.3f} from sentiment/kalman/jump"
-
-    return {
-        "token": feat.get("token"),
-        "action": action,
-        "confidence": confidence,
-        "recommended_notional": notional,
-        "reasoning": reasoning,
-    }
+def decide_action(feat: Dict[str, Any]) -> TradeOrder:
+    # Placeholder: build a dummy TradeOrder. In a real RL, map feat to size/side/etc.
+    return build_dummy_trade_order()
 
 
 def main() -> None:
@@ -69,7 +44,12 @@ def main() -> None:
             ensure_empty(out_path)
             return
 
-        orders: List[Dict[str, Any]] = [decide_action(f) for f in combined if f.get("token")]
+        orders: List[Dict[str, Any]] = []
+        for feat in combined:
+            if feat.get("token"):
+                order = decide_action(feat)
+                orders.append(order.to_dict())
+
         dump_jsonl(out_path, orders)
         logger.info("Wrote %d orders to %s", len(orders), out_path)
     except Exception as exc:

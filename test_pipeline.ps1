@@ -43,5 +43,6 @@ Invoke-Step -Script (Join-Path $pipelineDir "step07_rbergomi_analysis.py") -LogN
 Invoke-Step -Script (Join-Path $pipelineDir "step08_combine_features.py") -LogName "step08_combined_features.log"
 Invoke-Step -Script (Join-Path $pipelineDir "step09_run_rl.py") -LogName "step09_orders.log"
 Invoke-Step -Script (Join-Path $pipelineDir "step10_simulate_gmgn_order.py") -LogName "step10_simulated_calls.log"
+Invoke-Step -Script (Join-Path $pipelineDir "step11_gmgn_route_sim.py") -LogName "step11_gmgn_route.log"
 
 Write-Host "`nPipeline completed. Logs are in tests/pipeline_demo/pipeline_logs" -ForegroundColor Green

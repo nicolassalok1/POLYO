@@ -15,7 +15,7 @@ from trade_order_schema import TradeOrder
 
 
 def setup_logger() -> logging.Logger:
-    logger = logging.getLogger("step10_simulate_gmgn")
+    logger = logging.getLogger("step11_gmgn_route_sim")
     logger.setLevel(logging.INFO)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
@@ -24,7 +24,7 @@ def setup_logger() -> logging.Logger:
     return logger
 
 
-def simulate_gmgn(order: TradeOrder) -> Dict[str, Any]:
+def simulate_route(order: TradeOrder) -> Dict[str, Any]:
     base_url = "https://gmgn.ai/defi/router/v1/sol/tx/get_swap_route"
     params = {
         "token_in_address": order.token_in_mint,
@@ -38,16 +38,16 @@ def simulate_gmgn(order: TradeOrder) -> Dict[str, Any]:
     }
     return {
         "order_id": order.order_id,
-        "simulated_url": base_url,
+        "simulated_route_url": base_url,
         "simulated_params": params,
-        "note": "Dry-run; no live GMGN request sent.",
+        "note": "Simulated route (no live GMGN call).",
     }
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Simulate GMGN order placement without real execution.")
+    parser = argparse.ArgumentParser(description="Simulate GMGN route inputs from TradeOrder records (no live call).")
     parser.add_argument("--input", type=Path, default=log_path("step09_orders.log"))
-    parser.add_argument("--output", type=Path, default=log_path("step10_simulated_calls.log"))
+    parser.add_argument("--output", type=Path, default=log_path("step11_gmgn_route.log"))
     args = parser.parse_args()
 
     logger = setup_logger()
@@ -57,18 +57,18 @@ def main() -> None:
         if not rows:
             logger.error("No orders found at %s; leaving output empty.", args.input)
             ensure_empty(out_path)
-        else:
-            simulated: List[Dict[str, Any]] = []
-            for row in rows:
-                try:
-                    order = TradeOrder.from_dict(row)
-                    simulated.append(simulate_gmgn(order))
-                except Exception as exc:
-                    logger.error("Failed to parse order row (%s); skipping.", exc)
-            dump_jsonl(out_path, simulated)
-            logger.info("Logged %d simulated API calls to %s", len(simulated), out_path)
+            return
+        simulated: List[Dict[str, Any]] = []
+        for row in rows:
+            try:
+                order = TradeOrder.from_dict(row)
+                simulated.append(simulate_route(order))
+            except Exception as exc:
+                logger.error("Failed to parse order row (%s); skipping.", exc)
+        dump_jsonl(out_path, simulated)
+        logger.info("Wrote %d simulated GMGN route entries to %s", len(simulated), out_path)
     except Exception as exc:
-        logger.error("ERROR: step10 failed (%s). Leaving log empty.", exc)
+        logger.error("ERROR: step11 failed (%s). Leaving log empty.", exc)
         ensure_empty(out_path)
 
 
